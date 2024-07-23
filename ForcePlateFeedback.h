@@ -11,6 +11,7 @@
 
 #pragma once
 
+#include <QtGui/QIntValidator>
 #include <QtWidgets/QApplication>
 #include <QtWidgets/QFileDialog>
 #include <QtWidgets/QGridLayout>
@@ -18,6 +19,9 @@
 #include <QtWidgets/QLineEdit>
 #include <QtWidgets/QMainWindow>
 #include <QtWidgets/QPushButton>
+
+// Maximum timeframe in miliseconds over which the parameters may be calculated.
+#define MAX_TIMEFRAME 10'000
 
 // Placeholder for biomechanical toolkit (BTK):
 // https://biomechanical-toolkit.github.io/docs/API/
@@ -109,21 +113,28 @@ private:
 };
 
 // A class for the implementation of the output window.
-// The window will just show the plots to the participant.
-// I'm not yet familiar enough with Qt to see if this makes
-// sense, or if it's better to just directly use the respective Qt classes.
-class OutputWindow {
+// The window will show the plots to the participant.
+class OutputWindow : public QWidget {
+  Q_OBJECT
+
 public:
-  OutputWindow() {}
+  OutputWindow();
   ~OutputWindow() {}
 
   void preparePlot(BalanceParameters *balanceParameters) {}
   void refresh() {}
-  void show() {}
-  void hide() {}
+  void show();
+  void hide();
 
 private:
-  // Placeholder for Qt stuff...
+  // Qt stuff.
+  QWidget *window_;
+  QLabel *label_;
+
+public slots:
+  // Communication with ForcePlateFeedback class.
+  void onStartLiveView();
+  void onStopLiveView();
 };
 
 // A class for the implementation of the configuration window.
@@ -155,17 +166,18 @@ private:
   QLineEdit *fileLineEdit_;
   QFileDialog *fileDialog_;
 
-  // Config options.
-  std::string fileName_;
-  float timeframe_;
-
 private slots:
   // Event handlers.
   void handleStartButton();
   void handleFileButton();
 
+public slots:
+  // Communication with ForcePlateFeedback class.
+  void onStartLiveView();
+  void onStopLiveView();
+
 signals:
-  void startPressed();
+  void startButtonPressed(QString fileName, QString timeframe);
 };
 
 // A class for the coordination of GUI and core logic. Sets up the
@@ -191,13 +203,20 @@ private:
 
   // Configuration options.
   std::string fileName_;
+  float timeframe_;
 
   // State of the program (running / paused).
   bool running_;
 
-private slots:
-  // New file was selected.
+  // Sanity checks / validation of config options. Returns true if the config
+  // options are valid.
+  bool validateConfigOptions(std::string fileName, float timeframe);
 
+signals:
+  void startLiveView();
+  void stopLiveView();
+
+private slots:
   // Start button was pressed.
-  void onStartPressed();
+  void onStartButtonPressed(QString fileName, QString timeframe);
 };
