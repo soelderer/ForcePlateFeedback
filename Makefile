@@ -11,6 +11,7 @@ TEST_BINARY = $(basename $(wildcard *Test.cpp))
 LIBS = -lncurses -lQt6Core -lQt6Gui -lQt6Widgets
 TESTLIBS = -lgtest -lgtest_main -lpthread
 OBJECTS = $(addsuffix .o, $(basename $(filter-out %Main.cpp %Test.cpp, $(wildcard *.cpp))))
+MOC_OBJECTS = moc_ForcePlateFeedback.o moc_DataModel.o
 
 all: compile checkstyle test
 
@@ -30,13 +31,13 @@ moc_%.cpp: %.h
 	$(MOC) $< -o $@
 	clang-format-14 -i $@
 
-moc_ForcePlateFeedback.o: moc_ForcePlateFeedback.cpp *.h
+moc_%.o: moc_%h.cpp *.h
 	$(CXX) $(CXXFLAGS) -c $<
 
-%Main: %Main.o $(OBJECTS) moc_ForcePlateFeedback.o
+%Main: %Main.o $(OBJECTS) $(MOC_OBJECTS)
 	$(CXX) $(CXXFLAGS) -o $@ $^ $(LIBS)
 
-%Test: %Test.o $(OBJECTS) moc_ForcePlateFeedback.o
+%Test: %Test.o $(OBJECTS) $(MOC_OBJECTS)
 	$(CXX) $(CXXFLAGS) -o $@ $^ $(LIBS) $(TESTLIBS)
 
 clean:
