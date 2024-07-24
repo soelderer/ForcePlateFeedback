@@ -112,8 +112,7 @@ void KistlerCSVFile::parseMetaData() {
                      "be a valid BioWare file: "
                   << fileName_ << std::endl;
       }
-      std::cout << "Detected sampling rate of " << samplingRate_ << "Hz."
-                << std::endl;
+      qDebug() << "Detected sampling rate of " << samplingRate_ << "Hz.";
 
     } else {
       std::cerr
@@ -128,8 +127,6 @@ void KistlerCSVFile::parseMetaData() {
   // Column headers are in line 18 (4 already read for the sampling rate).
   for (int i = 0; i < 14; i++) {
     std::getline(file, line);
-
-    std::cout << "getline(): " << line << std::endl;
   }
 
   columnNames_ = sliceRow(line, '\t'); // hard-coded delimiter ...
@@ -190,14 +187,7 @@ KistlerCSVFile::stringToFloatVector(std::vector<std::string> stringVector) {
 // ____________________________________________________________________________
 std::unordered_map<std::string, std::vector<float>>
 KistlerCSVFile::getData(int startRow, int stopRow) const {
-  // Method to extract raw data from the file by row indices.
-  // startRow and stopRow specify which rows to return from the file
-  // (zero-based indexing).
-  // Use negative indices for retrieving all data, e.g. startRow = -1
-  // and stopRow = -1 will return all data; startRow = 26 and stopRow = -1
-  // will return data from row 27 until the end of the file.
-  // It returns a map, so that the data columns can be accessed by their
-  // column names, e.g. "Fx"
+  qDebug() << "KistlerCSVFile::getData(" << startRow << ", " << stopRow << ")";
 
   // Check for invalid row indices.
   if (stopRow < startRow && stopRow != -1) {
@@ -253,12 +243,12 @@ KistlerCSVFile::getData(int startRow, int stopRow) const {
   do {
     // Continue if we have not reached nRows yet OR we should read until EOF
     // (nRows == -1).
-    std::cout << "i = " << i << "; nRows = " << nRows << std::endl;
+    // qDebug() << "KistlerCSVFile::getData(int, int): i = " << i
+    //           << "; nRows = " << nRows;
 
     if ((nRows != -1 && i < nRows) || nRows == -1) {
-      std::cout << "entered nRows != -1 && i < nRows." << std::endl;
       if (!std::getline(file, line)) {
-        std::cout << "reached EOF" << std::endl;
+        qDebug() << "KistlerCSVFile::getData(int, int): reached EOF";
         // reached EOF.
         done = true;
         break;
@@ -266,14 +256,10 @@ KistlerCSVFile::getData(int startRow, int stopRow) const {
 
       auto row = sliceRow(line, '\t');
 
-      std::cout << "Row: " << line << std::endl;
-
       for (size_t j = 0; j < columnNames_.size(); j++) {
         try {
           float value = std::stof(row[j]);
           data[columnNames_[j]].push_back(value);
-          std::cout << "Pushing " << value << " to " << columnNames_[j]
-                    << std::endl;
         } catch (std::exception &e) {
           std::cerr
               << "Error in KistlerCSVFile::stringToFloatVector(): Cannot "

@@ -4,13 +4,14 @@
 #pragma once
 
 #include "./KistlerFile.h"
+#include <QtCore/QDebug>
 #include <QtCore/QObject>
 #include <QtCore/QTimer>
 
 // The current implementation is not for real live view, but playback of a CSV
 // file. This sets the speed of the playback (delay between re-processing in
 // ms).
-#define PLAYBACK_DELAY_MS 500
+#define PLAYBACK_DELAY_MS 1
 
 // Placeholder for biomechanical toolkit (BTK):
 // https://biomechanical-toolkit.github.io/docs/API/
@@ -140,4 +141,5 @@ public slots:
 
 signals:
   void dataUpdated(BalanceParameters *balanceParameters);
+  void reachedEOF();
 };

@@ -3,6 +3,7 @@
 
 #pragma once
 
+#include <QtCore/QDebug>
 #include <algorithm>
 #include <fstream>
 #include <gtest/gtest.h>

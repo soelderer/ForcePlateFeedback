@@ -130,4 +130,8 @@ signals:
 private slots:
   // Start button was pressed.
   void onStartButtonPressed(QString fileName, QString timeframe);
+
+public slots:
+  void onDataUpdated(BalanceParameters *balanceParameters);
+  void onReachedEOF();
 };

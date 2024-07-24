@@ -135,6 +135,15 @@ ForcePlateFeedback::ForcePlateFeedback() {
 
   QObject::connect(this, &ForcePlateFeedback::stopLiveView, dataModel_,
                    &DataModel::stopProcessing);
+
+  // Data updated.
+  QObject::connect(dataModel_, &DataModel::dataUpdated, this,
+                   &ForcePlateFeedback::onDataUpdated);
+  // maybe directly connect to OutputWindow?
+
+  // Reached EOF.
+  QObject::connect(dataModel_, &DataModel::reachedEOF, this,
+                   &ForcePlateFeedback::onReachedEOF);
 }
 
 // ____________________________________________________________________________
@@ -164,7 +173,7 @@ void ForcePlateFeedback::onStartButtonPressed(QString fileName,
     // error message
   }
   fileName_ = fileName.toStdString();
-  timeframe_ = timeframeFloat;
+  timeframe_ = timeframeFloat / 1000; // ms to s
 
   running_ = true;
 
@@ -184,4 +193,15 @@ bool ForcePlateFeedback::validateConfigOptions(std::string fileName,
   // Check if time frame is not zero.
 
   return true;
+}
+
+// ____________________________________________________________________________
+void ForcePlateFeedback::onDataUpdated(BalanceParameters *balanceParameters) {
+  // update OutputWindow
+}
+
+// ____________________________________________________________________________
+void ForcePlateFeedback::onReachedEOF() {
+  dataModel_->stopProcessing();
+  // further stuff
 }

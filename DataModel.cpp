@@ -159,33 +159,55 @@ void DataModel::process() {
   // Determine number of rows we need to read with sampling rate and the
   // configured timeframe.
   // (sampling rate is guaranteed to be != 0)
-  int attemptedNumRows = timeframe_ / kistlerFile_.getSamplingRate();
 
-  firstRow_++;
+  qDebug() << "DataModel::process(): configTimeframe_ = " << configTimeframe_;
+  qDebug() << "DataModel::process(): kistlerFile_.getSamplingRate() = "
+           << kistlerFile_.getSamplingRate();
+
+  int attemptedNumRows = configTimeframe_ * kistlerFile_.getSamplingRate();
+
+  qDebug() << "DataModel::process(): attemptedNumRows = " << attemptedNumRows;
+  qDebug() << "DataModel::process(): firstRow_ = " << firstRow_;
+  qDebug() << "DataModel::process(): lastRow_ = " << lastRow_;
 
   std::unordered_map<std::string, std::vector<float>> data;
-  data = kistlerFile_.getData(firstRow_, firstRow_ + attemptedNumRows);
+
+  qDebug() << "DataModel::process(): called getData(" << firstRow_ << ", "
+           << firstRow_ + attemptedNumRows - 1 << ")";
+
+  data = kistlerFile_.getData(firstRow_, firstRow_ + attemptedNumRows - 1);
 
   if (data["abs time (s)"].size() != 0) {
     balanceParameters_.update(&data);
 
+    firstRow_++;
     lastRow_ = firstRow_ + data["abs time (s)"].size();
-    // firstRow_ already incremented above
     numRows_ = data["abs time (s)"].size();
 
     startTime_ = balanceParameters_.getStartTime();
     stopTime_ = balanceParameters_.getStopTime();
     timeframe_ = balanceParameters_.getTimeframe();
 
-    std::cout << "PARAMETER[meanX]: " << balanceParameters_.getMeanForceX()
-              << std::endl;
-    std::cout << "PARAMETER[meanY]: " << balanceParameters_.getMeanForceY()
-              << std::endl;
+    qDebug() << "DataModel::process(): PARAMETER[meanX] = "
+             << balanceParameters_.getMeanForceX();
+    qDebug() << "DataModel::process(): PARAMETER[meanY] = "
+             << balanceParameters_.getMeanForceY();
   }
+
+  emit dataUpdated(&balanceParameters_);
+
+  qDebug() << "DataModel::process(): data.size() = "
+           << data["abs time (s)"].size();
+  qDebug() << "DataModel::process(): attemptedNumRows = " << attemptedNumRows;
+
+  // weitermachen .... irgendwo bei attemptedNumRows, lastRow usw. liegt der
+  // Hund
 
   // Check if we reached EOF.
   if (data["abs time (s)"].size() < attemptedNumRows) {
-    // reached EOF.
-    // stop processing, signal etc.
+    qDebug() << "DataModel::process(): reached EOF";
+    emit reachedEOF();
   }
 }
+
+// ____________________________________________________________________________
