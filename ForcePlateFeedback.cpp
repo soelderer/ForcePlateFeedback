@@ -47,7 +47,7 @@ void ConfigWindow::handleFileButton() {
 
   if (!fileName.isEmpty()) {
     fileLineEdit_->setText(fileName);
-    std::cout << "Selected data file: " << fileName.toStdString() << std::endl;
+    qInfo() << "Selected data file: " << fileName;
   }
 }
 
@@ -153,7 +153,7 @@ void ForcePlateFeedback::onStartButtonPressed(QString fileName,
   if (running_) {
     running_ = false;
     // Notify ConfigWindow, OutputWindow and DataModel about the stop.
-    std::cout << "Stopping live view." << std::endl;
+    qInfo() << "Stopping live view.";
     emit stopLiveView();
     return;
   }
@@ -173,7 +173,7 @@ void ForcePlateFeedback::onStartButtonPressed(QString fileName,
   // Notify ConfigWindow, OutputWindow and DataModel about the start.
   emit startLiveView(fileName_, timeframe_);
 
-  std::cout << "Starting live view." << std::endl;
+  qInfo() << "Starting live view.";
 }
 
 // ____________________________________________________________________________

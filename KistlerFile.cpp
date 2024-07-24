@@ -17,8 +17,6 @@ KistlerCSVFile::KistlerCSVFile(const std::string &fileName)
 
 // ____________________________________________________________________________
 void KistlerCSVFile::validateFile() {
-  std::cout << "This is validateFile()." << std::endl;
-
   std::ifstream file(fileName_);
 
   // makes sense?
@@ -98,6 +96,10 @@ void KistlerCSVFile::parseColumnNames() {
 // ____________________________________________________________________________
 std::vector<std::string> KistlerCSVFile::sliceRow(std::string line,
                                                   char delimiter) {
+  // Remove newline and carriage return.
+  line.erase(std::remove(line.begin(), line.end(), '\n'), line.cend());
+  line.erase(std::remove(line.begin(), line.end(), '\r'), line.cend());
+
   // Thanks https://stackoverflow.com/a/55263720
   std::string tmp;
   std::stringstream ss(line);
@@ -144,53 +146,104 @@ KistlerCSVFile::stringToFloatVector(std::vector<std::string> stringVector) {
 // ____________________________________________________________________________
 std::unordered_map<std::string, std::vector<float>>
 KistlerCSVFile::getData(int startRow, int stopRow) const {
-  // std::cout << "This is getData(); " << std::endl;
+  // Method to extract raw data from the file by row indices.
+  // startRow and stopRow specify which rows to return from the file
+  // (zero-based indexing).
+  // Use negative indices for retrieving all data, e.g. startRow = -1
+  // and stopRow = -1 will return all data; startRow = 26 and stopRow = -1
+  // will return data from row 27 until the end of the file.
+  // It returns a map, so that the data columns can be accessed by their
+  // column names, e.g. "Fx"
 
-  // // Method to extract raw data from the file by row indices.
-  // // startRow and stopRow specify which rows to return from the file
-  // // (zero-based indexing).
-  // // Use negative indices for retrieving all data, e.g. startRow = -1
-  // // and stopRow = -1 will return all data; startRow = 26 and stopRow = -1
-  // // will return data from row 27 until the end of the file.
-  // // It returns a map, so that the data columns can be accessed by their
-  // // column names, e.g. "Fx"
+  // Check for invalid row indices.
+  if (stopRow < startRow && stopRow != -1) {
+    std::cerr << "Error in KistlerCSVFile::getData(): Invalid row indices "
+                 "startRow and/or stopRow. This can happen e.g. if startRow > "
+                 "stopRow."
+              << std::endl;
+    exit(EXIT_FAILURE); // replace with exception handling
+  }
 
-  // // Check for invalid row indices.
-  // if (stopRow < startRow && stopRow != -1) {
-  //   std::cerr << "Error in KistlerCSVFile::getData(): Invalid row indices "
-  //                "startRow and/or stopRow. This can happen e.g. if startRow >
-  //                " "stopRow."
-  //             << std::endl;
-  //   exit(EXIT_FAILURE); // replace with exception handling
-  // }
+  std::unordered_map<std::string, std::vector<float>> data;
 
-  // std::unordered_map<std::string, std::vector<float>> data;
+  for (const auto &column : columnNames_) {
+    data[column] = std::vector<float>();
+  }
 
-  // for (const auto &column : columnNames_) {
-  //   data[column] = std::vector<float>();
-  // }
+  // We can reserve some memory in advance to avoid multiple allocations.
+  if (startRow != -1 && stopRow != -1) {
+    for (auto &column : data) {
+      column.second.reserve(stopRow - startRow + 1);
+    }
+  }
 
-  // // We can reserve some memory in advance to avoid multiple allocations.
-  // if (startRow != -1 && stopRow != -1) {
-  //   for (auto &column : data) {
-  //     column.second.reserve(stopRow - startRow + 1);
-  //   }
-  // }
+  std::ifstream file(fileName_);
+  std::string line;
+  std::getline(file, line);
 
-  // std::ifstream file(fileName_);
-  // std::string line;
-  // std::getline(file, line);
+  // Data starts at line 20.
+  for (int i = 0; i < 18; i++) {
+    std::getline(file, line);
+  }
 
-  // // Data starts at line 20.
-  // for (int i = 0; i < 19; i++) {
-  //   std::getline(file, line);
-  // }
+  // Take care of startRow.
+  if (startRow != -1) {
+    for (int i = 0; i < startRow; i++) {
+      std::getline(file, line);
+    }
+  }
 
-  // std::cout << line << std::endl;
+  // Take care of stopRow.
+  int nRows;
+  if (stopRow != -1 && startRow != -1) {
+    nRows = stopRow - startRow + 1;
+  } else if (stopRow != -1 && startRow == -1) {
+    nRows = stopRow;
+  } else {
+    nRows = -1; // indicator to read the whole file in the loop below
+  }
+
+  // Read nRows lines.
+  bool done = false;
+  int i = 0;
+  do {
+    // Continue if we either read the whole file or until we reach nRows.
+    std::cout << "i = " << i << "; nRows = " << nRows << std::endl;
+
+    if (nRows != -1 && i < nRows) {
+      std::cout << "entered nRows != -1 && i < nRows." << std::endl;
+      if (!std::getline(file, line)) {
+        std::cout << "reached EOF" << std::endl;
+        // reached EOF.
+        done = true;
+        break;
+      }
+
+      auto row = sliceRow(line, '\t');
+
+      std::cout << "Row: " << line << std::endl;
+
+      for (size_t j = 0; j < columnNames_.size(); j++) {
+        try {
+          float value = std::stof(row[j]);
+          data[columnNames_[j]].push_back(value);
+          std::cout << "Pushing " << value << " to " << columnNames_[j]
+                    << std::endl;
+        } catch (std::exception &e) {
+          std::cerr
+              << "Error in KistlerCSVFile::stringToFloatVector(): Cannot "
+                 "convert string to float. Seems like the data is corrupt."
+              << std::endl;
+          exit(EXIT_FAILURE); // TODO: proper error dialogs...
+        }
+      }
+      i++;
+    } else
+      done = true;
+  } while (!done);
+
+  return data;
 }
 
 // ____________________________________________________________________________
 void KistlerDatFile::validateFile() {}
-
-// ____________________________________________________________________________
-void KistlerCSVFile::test() { std::cout << "this is test" << std::endl; }

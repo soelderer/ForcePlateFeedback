@@ -31,18 +31,13 @@ void BalanceParameters::calculateParameters() {
 }
 
 // ____________________________________________________________________________
-DataModel::DataModel() {
-  running_ = false;
-  std::cout << "default constructor of DataModel." << std::endl;
-}
+DataModel::DataModel() { running_ = false; }
 
 // ____________________________________________________________________________
 DataModel::~DataModel() {}
 
 // ____________________________________________________________________________
 void DataModel::onStartLiveView(std::string fileName, float timeframe) {
-  std::cout << "this is onStart" << std::endl;
-
   fileName_ = fileName;
   timeframe_ = timeframe;
 
@@ -50,10 +45,8 @@ void DataModel::onStartLiveView(std::string fileName, float timeframe) {
 
   kistlerFile_ = KistlerCSVFile(fileName_);
 
-  kistlerFile_.test();
-
   std::unordered_map<std::string, std::vector<float>> data;
-  data = kistlerFile_.getData(1, 3);
+  data = kistlerFile_.getData(100, 103);
 }
 
 // ____________________________________________________________________________

@@ -3,9 +3,11 @@
 
 #pragma once
 
+#include <algorithm>
 #include <fstream>
 #include <gtest/gtest.h>
 #include <map>
+#include <stdlib.h>
 #include <string>
 #include <unistd.h>
 #include <vector>
@@ -59,8 +61,6 @@ public:
 
   bool isValid() const { return isValid_; }
 
-  virtual void test() = 0;
-
 protected:
   std::string fileName_;
   bool isValid_;
@@ -100,9 +100,8 @@ public:
   static std::vector<float>
   stringToFloatVector(std::vector<std::string> stringVector);
 
-  void test() override;
-
   FRIEND_TEST(KistlerFileTest, KistlerCSVFileConstructor);
+  FRIEND_TEST(KistlerCSVFileTest, parseColumnNames);
 
 private:
   // Column/variable names of the file.
@@ -129,6 +128,4 @@ public:
 
   std::unordered_map<std::string, std::vector<float>>
   getData(float startTime = -1, float stopTime = -1) const override {}
-
-  void test() override {}
 };

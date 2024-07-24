@@ -4,6 +4,7 @@
 #include "./ForcePlateFeedback.h"
 #include <gtest/gtest.h>
 
+// ____________________________________________________________________________
 TEST(KistlerCSVFileTest, validateFile) {
   // A proper file.
   KistlerCSVFile kistlerFile("./example_data/KistlerCSV_example.txt");
@@ -36,6 +37,7 @@ TEST(KistlerCSVFileTest, validateFile) {
   ASSERT_FALSE(kistlerFile.isValid());
 }
 
+// ____________________________________________________________________________
 TEST(KistlerCSVFileTest, sliceRow) {
   // Regular case
   std::string str("one\ttwo\tthree\tfour");
@@ -113,11 +115,127 @@ TEST(KistlerCSVFileTest, sliceRow) {
   ASSERT_EQ(strings[7], "");
 }
 
-// sliceRow()
+// ____________________________________________________________________________
+TEST(KistlerCSVFileTest, parseColumnNames) {
+  // Regular case.
+  KistlerCSVFile kistlerFile("example_data/KistlerCSV_example.txt");
+  // Constructor calls parseColumnNames(), so let's reset the column names
+  // and explicitly call parseColumnNames.
+  kistlerFile.columnNames_ = std::vector<std::string>();
+  ASSERT_EQ(kistlerFile.columnNames_.size(), 0);
+  kistlerFile.parseColumnNames();
+  ASSERT_EQ(kistlerFile.columnNames_.size(), 9);
+  ASSERT_STREQ(kistlerFile.columnNames_[0].c_str(), "abs time (s)");
+  ASSERT_STREQ(kistlerFile.columnNames_[1].c_str(), "Fx");
+  ASSERT_STREQ(kistlerFile.columnNames_[2].c_str(), "Fy");
+  ASSERT_STREQ(kistlerFile.columnNames_[3].c_str(), "Fz");
+  ASSERT_STREQ(kistlerFile.columnNames_[4].c_str(), "Mx");
+  ASSERT_STREQ(kistlerFile.columnNames_[5].c_str(), "My");
+  ASSERT_STREQ(kistlerFile.columnNames_[6].c_str(), "Mz");
+  ASSERT_STREQ(kistlerFile.columnNames_[7].c_str(), "Ax");
+  ASSERT_STREQ(kistlerFile.columnNames_[8].c_str(), "Ay");
 
-// parseColumnNames()
+  // Other column names.
+  kistlerFile = KistlerCSVFile("example_data/KistlerCSV_wrong_column.txt");
+  kistlerFile.columnNames_ = std::vector<std::string>();
+  ASSERT_EQ(kistlerFile.columnNames_.size(), 0);
+  kistlerFile.parseColumnNames();
+  ASSERT_EQ(kistlerFile.columnNames_.size(), 9);
+  ASSERT_STREQ(kistlerFile.columnNames_[0].c_str(), "abs iitime  wef (s)");
+  ASSERT_STREQ(kistlerFile.columnNames_[1].c_str(), "Fx");
+  ASSERT_STREQ(kistlerFile.columnNames_[2].c_str(), "Fy");
+  ASSERT_STREQ(kistlerFile.columnNames_[3].c_str(), "Fz");
+  ASSERT_STREQ(kistlerFile.columnNames_[4].c_str(), "Mx");
+  ASSERT_STREQ(kistlerFile.columnNames_[5].c_str(), "My");
+  ASSERT_STREQ(kistlerFile.columnNames_[6].c_str(), " jklöklklölökMz");
+  ASSERT_STREQ(kistlerFile.columnNames_[7].c_str(), "Ax");
+  ASSERT_STREQ(kistlerFile.columnNames_[8].c_str(), "Ay 203 jlkd");
 
-// stringToFloatVector()
+  // Edge cases not really expected as this would be a corrupted CSV file.
+}
+
+// stringToFloatVector()  -- dont need that anymore?
+
+// ____________________________________________________________________________
+TEST(KistlerCSVFileTest, getDataByIndices) {
+  KistlerCSVFile kistlerFile("example_data/KistlerCSV_example.txt");
+  std::unordered_map<std::string, std::vector<float>> data;
+
+  // Get the first row.
+  data = kistlerFile.getData(0, 0);
+  ASSERT_EQ(data.size(), 9);
+  ASSERT_EQ(data["abs time (s)"].size(), 1);
+  ASSERT_EQ(data["Fx"].size(), 1);
+  ASSERT_EQ(data["Fy"].size(), 1);
+  ASSERT_EQ(data["Fz"].size(), 1);
+  ASSERT_EQ(data["Mx"].size(), 1);
+  ASSERT_EQ(data["My"].size(), 1);
+  ASSERT_EQ(data["Mz"].size(), 1);
+  ASSERT_EQ(data["Ax"].size(), 1);
+  ASSERT_EQ(data["Ay"].size(), 1);
+  ASSERT_FLOAT_EQ(data["abs time (s)"][0], 0);
+  ASSERT_FLOAT_EQ(data["Fx"][0], 0.145133);
+  ASSERT_FLOAT_EQ(data["Fy"][0], -0.010285);
+  ASSERT_FLOAT_EQ(data["Fz"][0], -0.126362);
+  ASSERT_FLOAT_EQ(data["Mx"][0], -0.362161);
+  ASSERT_FLOAT_EQ(data["My"][0], 0.150046);
+  ASSERT_FLOAT_EQ(data["Mz"][0], 0.001693);
+  ASSERT_FLOAT_EQ(data["Ax"][0], 0);
+  ASSERT_FLOAT_EQ(data["Ay"][0], 0);
+
+  // Get rows 9 to 12.
+  data = kistlerFile.getData(8, 11);
+  ASSERT_EQ(data.size(), 9);
+  ASSERT_EQ(data["abs time (s)"].size(), 4);
+  ASSERT_EQ(data["Fx"].size(), 4);
+  ASSERT_EQ(data["Fy"].size(), 4);
+  ASSERT_EQ(data["Fz"].size(), 4);
+  ASSERT_EQ(data["Mx"].size(), 4);
+  ASSERT_EQ(data["My"].size(), 4);
+  ASSERT_EQ(data["Mz"].size(), 4);
+  ASSERT_EQ(data["Ax"].size(), 4);
+  ASSERT_EQ(data["Ay"].size(), 4);
+  // Row 9
+  ASSERT_FLOAT_EQ(data["abs time (s)"][0], 0.008);
+  ASSERT_FLOAT_EQ(data["Fx"][0], -0.011207);
+  ASSERT_FLOAT_EQ(data["Fy"][0], -0.205451);
+  ASSERT_FLOAT_EQ(data["Fz"][0], -1.102404);
+  ASSERT_FLOAT_EQ(data["Mx"][0], 0.238696);
+  ASSERT_FLOAT_EQ(data["My"][0], 0.348605);
+  ASSERT_FLOAT_EQ(data["Mz"][0], -0.067442);
+  ASSERT_FLOAT_EQ(data["Ax"][0], 0);
+  ASSERT_FLOAT_EQ(data["Ay"][0], 0);
+  // Row 10
+  ASSERT_FLOAT_EQ(data["abs time (s)"][1], 0.009);
+  ASSERT_FLOAT_EQ(data["Fx"][1], 0.145173);
+  ASSERT_FLOAT_EQ(data["Fy"][1], -0.049630);
+  ASSERT_FLOAT_EQ(data["Fz"][1], -1.428445);
+  ASSERT_FLOAT_EQ(data["Mx"][1], 0.147898);
+  ASSERT_FLOAT_EQ(data["My"][1], -0.124266);
+  ASSERT_FLOAT_EQ(data["Mz"][1], 0.022363);
+  ASSERT_FLOAT_EQ(data["Ax"][1], 0);
+  ASSERT_FLOAT_EQ(data["Ay"][1], 0);
+  // Row 11
+  ASSERT_FLOAT_EQ(data["abs time (s)"][2], 0.01);
+  ASSERT_FLOAT_EQ(data["Fx"][2], -0.050342);
+  ASSERT_FLOAT_EQ(data["Fy"][2], -0.088255);
+  ASSERT_FLOAT_EQ(data["Fz"][2], -0.288165);
+  ASSERT_FLOAT_EQ(data["Mx"][2], 0.192003);
+  ASSERT_FLOAT_EQ(data["My"][2], 0.039073);
+  ASSERT_FLOAT_EQ(data["Mz"][2], -0.065504);
+  ASSERT_FLOAT_EQ(data["Ax"][2], 0);
+  ASSERT_FLOAT_EQ(data["Ay"][2], 0);
+  // Row 12
+  ASSERT_FLOAT_EQ(data["abs time (s)"][3], 0.011);
+  ASSERT_FLOAT_EQ(data["Fx"][3], 0.066863);
+  ASSERT_FLOAT_EQ(data["Fy"][3], -0.010165);
+  ASSERT_FLOAT_EQ(data["Fz"][3], 0.364267);
+  ASSERT_FLOAT_EQ(data["Mx"][3], 0.019169);
+  ASSERT_FLOAT_EQ(data["My"][3], 0.249212);
+  ASSERT_FLOAT_EQ(data["Mz"][3], 0.005645);
+  ASSERT_FLOAT_EQ(data["Ax"][3], -0.684146);
+  ASSERT_FLOAT_EQ(data["Ay"][3], 0.052623);
+}
 
 // ____________________________________________________________________________
 
