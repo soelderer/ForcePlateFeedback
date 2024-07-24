@@ -10,7 +10,7 @@ KistlerCSVFile::KistlerCSVFile(const std::string &fileName)
   validateFile();
 
   // Read column headers so we know which data we have available.
-  parseColumnNames();
+  parseMetaData();
 
   // Now we're ready for getting data
 }
@@ -71,21 +71,58 @@ void KistlerCSVFile::validateFile() {
 }
 
 // ____________________________________________________________________________
-void KistlerCSVFile::parseColumnNames() {
+void KistlerCSVFile::parseMetaData() {
+  // Get the sample rate.
+
+  // Get the column headers.
   std::ifstream file(fileName_);
 
   if (!isValid_) {
-    std::cerr << "Error in KistlerCSVFile::parseColumnNames(): File does not "
+    std::cerr << "Error in KistlerCSVFile::parseMetaData(): File does not "
                  "appear to be a valid BioWare file: "
               << fileName_ << std::endl;
+    return;
   }
 
   std::string line;
   std::getline(file, line);
 
-  // Column headers are in line 18.
-  for (int i = 0; i < 17; i++) {
+  // Sampling rates are in line 4.
+  for (int i = 0; i < 3; i++) {
     std::getline(file, line);
+  }
+
+  std::vector<std::string> samplingRates_ =
+      sliceRow(line, '\t'); // hard-coded delimiter ...
+
+  if (!(samplingRates_[0] == "Rate (Hz):")) {
+    std::cerr << "Error in KistlerCSVFile::parseMetaData(): Could not "
+                 "determine the sampling rate of the file, it does not appear "
+                 "to be a valid BioWare file: "
+              << fileName_ << std::endl;
+    return;
+  } else {
+    // Assuming that the sampling rate is the same for each channel.
+    if (samplingRates_.size() > 1) {
+      samplingRate_ = std::stof(samplingRates_[1]);
+
+      std::cout << "Detected sampling rate of " << samplingRate_ << "Hz."
+                << std::endl;
+    } else {
+      std::cerr
+          << "Error in KistlerCSVFile::parseMetaData(): Could not "
+             "determine the sampling rate of the file, it does not appear "
+             "to be a valid BioWare file: "
+          << fileName_ << std::endl;
+      return;
+    }
+  }
+
+  // Column headers are in line 18 (4 already read for the sampling rate).
+  for (int i = 0; i < 14; i++) {
+    std::getline(file, line);
+
+    std::cout << "getline(): " << line << std::endl;
   }
 
   columnNames_ = sliceRow(line, '\t'); // hard-coded delimiter ...

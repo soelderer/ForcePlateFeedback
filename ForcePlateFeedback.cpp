@@ -124,7 +124,7 @@ ForcePlateFeedback::ForcePlateFeedback() {
                    &OutputWindow::onStartLiveView);
 
   QObject::connect(this, &ForcePlateFeedback::startLiveView, dataModel_,
-                   &DataModel::onStartLiveView);
+                   &DataModel::startProcessing);
 
   // Stop live view.
   QObject::connect(this, &ForcePlateFeedback::stopLiveView, configWindow_,
@@ -134,7 +134,7 @@ ForcePlateFeedback::ForcePlateFeedback() {
                    &OutputWindow::onStopLiveView);
 
   QObject::connect(this, &ForcePlateFeedback::stopLiveView, dataModel_,
-                   &DataModel::onStopLiveView);
+                   &DataModel::stopProcessing);
 }
 
 // ____________________________________________________________________________

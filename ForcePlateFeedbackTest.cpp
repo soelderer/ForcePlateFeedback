@@ -116,14 +116,14 @@ TEST(KistlerCSVFileTest, sliceRow) {
 }
 
 // ____________________________________________________________________________
-TEST(KistlerCSVFileTest, parseColumnNames) {
+TEST(KistlerCSVFileTest, parseMetaData) {
   // Regular case.
   KistlerCSVFile kistlerFile("example_data/KistlerCSV_example.txt");
-  // Constructor calls parseColumnNames(), so let's reset the column names
-  // and explicitly call parseColumnNames.
+  // Constructor calls parseMetaData(), so let's reset the column names
+  // and explicitly call parseMetaData.
   kistlerFile.columnNames_ = std::vector<std::string>();
   ASSERT_EQ(kistlerFile.columnNames_.size(), 0);
-  kistlerFile.parseColumnNames();
+  kistlerFile.parseMetaData();
   ASSERT_EQ(kistlerFile.columnNames_.size(), 9);
   ASSERT_STREQ(kistlerFile.columnNames_[0].c_str(), "abs time (s)");
   ASSERT_STREQ(kistlerFile.columnNames_[1].c_str(), "Fx");
@@ -139,7 +139,10 @@ TEST(KistlerCSVFileTest, parseColumnNames) {
   kistlerFile = KistlerCSVFile("example_data/KistlerCSV_wrong_column.txt");
   kistlerFile.columnNames_ = std::vector<std::string>();
   ASSERT_EQ(kistlerFile.columnNames_.size(), 0);
-  kistlerFile.parseColumnNames();
+  // parseMetaData checks for isValid_, so we need to override the variable for
+  // the test to work.
+  kistlerFile.isValid_ = true;
+  kistlerFile.parseMetaData();
   ASSERT_EQ(kistlerFile.columnNames_.size(), 9);
   ASSERT_STREQ(kistlerFile.columnNames_[0].c_str(), "abs iitime  wef (s)");
   ASSERT_STREQ(kistlerFile.columnNames_[1].c_str(), "Fx");
@@ -152,6 +155,8 @@ TEST(KistlerCSVFileTest, parseColumnNames) {
   ASSERT_STREQ(kistlerFile.columnNames_[8].c_str(), "Ay 203 jlkd");
 
   // Edge cases not really expected as this would be a corrupted CSV file.
+
+  // TODO: test sampling rate detection
 }
 
 // stringToFloatVector()  -- dont need that anymore?
@@ -335,6 +340,114 @@ TEST(KistlerCSVFileTest, getDataByIndices) {
   ASSERT_FLOAT_EQ(data["Mz"][1], 0.067055);
   ASSERT_FLOAT_EQ(data["Ax"][1], 0);
   ASSERT_FLOAT_EQ(data["Ay"][1], 0);
+}
+
+// ____________________________________________________________________________
+TEST(BalanceParametersTest, calculateMeanForceX) {
+  std::unordered_map<std::string, std::vector<float>> data;
+
+  // Empty vector should yield an average of 0.
+  data["Fx"];
+  BalanceParameters balanceParameters(&data);
+  // Constructor already calls calculateParameters(), so let's reset it and
+  // call it again manually.
+  balanceParameters.meanForceX_ = 0;
+  balanceParameters.calculateMeanForceX();
+  ASSERT_FLOAT_EQ(balanceParameters.meanForceX_, 0);
+
+  // Some trivial example.
+  data = std::unordered_map<std::string, std::vector<float>>();
+  data["Fx"].push_back(1);
+  data["Fx"].push_back(2);
+  data["Fx"].push_back(3);
+
+  balanceParameters = BalanceParameters(&data);
+  balanceParameters.meanForceX_ = 0;
+  balanceParameters.calculateMeanForceX();
+  ASSERT_FLOAT_EQ(balanceParameters.meanForceX_, 2);
+
+  // Negatives.
+  data = std::unordered_map<std::string, std::vector<float>>();
+  data["Fx"].push_back(-1);
+  data["Fx"].push_back(2);
+  data["Fx"].push_back(3);
+
+  balanceParameters = BalanceParameters(&data);
+  balanceParameters.meanForceX_ = 0;
+  balanceParameters.calculateMeanForceX();
+  ASSERT_FLOAT_EQ(balanceParameters.meanForceX_, 1.0 * 4 / 3);
+
+  // More realistic data.
+  data = std::unordered_map<std::string, std::vector<float>>();
+  data["Fx"].push_back(0.145133);
+  data["Fx"].push_back(-0.011368);
+  data["Fx"].push_back(0.027848);
+  data["Fx"].push_back(0.145133);
+  data["Fx"].push_back(-0.011408);
+  data["Fx"].push_back(0.066983);
+  data["Fx"].push_back(-0.050422);
+  data["Fx"].push_back(-0.128612);
+  data["Fx"].push_back(-0.011207);
+  data["Fx"].push_back(0.145173);
+
+  balanceParameters = BalanceParameters(&data);
+  balanceParameters.meanForceX_ = 0;
+  balanceParameters.calculateMeanForceX();
+  ASSERT_FLOAT_EQ(balanceParameters.meanForceX_, 0.0317253);
+}
+
+// ____________________________________________________________________________
+TEST(BalanceParametersTest, calculateMeanForceY) {
+  std::unordered_map<std::string, std::vector<float>> data;
+
+  // Empty vector should yield an average of 0.
+  data["Fy"];
+  BalanceParameters balanceParameters(&data);
+  // Constructor already calls calculateParameters(), so let's reset it and
+  // call it again manually.
+  balanceParameters.meanForceY_ = 0;
+  balanceParameters.calculateMeanForceY();
+  ASSERT_FLOAT_EQ(balanceParameters.meanForceY_, 0);
+
+  // Some trivial example.
+  data = std::unordered_map<std::string, std::vector<float>>();
+  data["Fy"].push_back(1);
+  data["Fy"].push_back(2);
+  data["Fy"].push_back(3);
+
+  balanceParameters = BalanceParameters(&data);
+  balanceParameters.meanForceY_ = 0;
+  balanceParameters.calculateMeanForceY();
+  ASSERT_FLOAT_EQ(balanceParameters.meanForceY_, 2);
+
+  // Negatives.
+  data = std::unordered_map<std::string, std::vector<float>>();
+  data["Fy"].push_back(-1);
+  data["Fy"].push_back(2);
+  data["Fy"].push_back(3);
+
+  balanceParameters = BalanceParameters(&data);
+  balanceParameters.meanForceY_ = 0;
+  balanceParameters.calculateMeanForceY();
+  ASSERT_FLOAT_EQ(balanceParameters.meanForceY_, 1.0 * 4 / 3);
+
+  // More realistic data.
+  data = std::unordered_map<std::string, std::vector<float>>();
+  data["Fy"].push_back(0.145133);
+  data["Fy"].push_back(-0.011368);
+  data["Fy"].push_back(0.027848);
+  data["Fy"].push_back(0.145133);
+  data["Fy"].push_back(-0.011408);
+  data["Fy"].push_back(0.066983);
+  data["Fy"].push_back(-0.050422);
+  data["Fy"].push_back(-0.128612);
+  data["Fy"].push_back(-0.011207);
+  data["Fy"].push_back(0.145173);
+
+  balanceParameters = BalanceParameters(&data);
+  balanceParameters.meanForceY_ = 0;
+  balanceParameters.calculateMeanForceY();
+  ASSERT_FLOAT_EQ(balanceParameters.meanForceY_, 0.0317253);
 }
 
 // ____________________________________________________________________________

@@ -61,9 +61,12 @@ public:
 
   bool isValid() const { return isValid_; }
 
+  float getSamplingRate() const { return samplingRate_; }
+
 protected:
   std::string fileName_;
   bool isValid_;
+  float samplingRate_;
 };
 
 // Subclass to represent CSV files with raw data.
@@ -90,8 +93,8 @@ public:
   std::unordered_map<std::string, std::vector<float>>
   getData(float startTime = -1, float stopTime = -1) const override {}
 
-  // Parse the CSV header to get the column names.
-  void parseColumnNames();
+  // Parse the CSV header to get metadata like sampling rate and column names.
+  void parseMetaData();
 
   // Slice a single CSV row into separate strings by a given delimiter.
   static std::vector<std::string> sliceRow(std::string line_, char delimiter);
@@ -101,7 +104,7 @@ public:
   stringToFloatVector(std::vector<std::string> stringVector);
 
   FRIEND_TEST(KistlerFileTest, KistlerCSVFileConstructor);
-  FRIEND_TEST(KistlerCSVFileTest, parseColumnNames);
+  FRIEND_TEST(KistlerCSVFileTest, parseMetaData);
 
 private:
   // Column/variable names of the file.

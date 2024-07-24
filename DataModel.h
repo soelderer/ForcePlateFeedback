@@ -5,6 +5,7 @@
 
 #include "./KistlerFile.h"
 #include <QtCore/QObject>
+#include <QtCore/QTimer>
 
 // Placeholder for biomechanical toolkit (BTK):
 // https://biomechanical-toolkit.github.io/docs/API/
@@ -35,34 +36,39 @@ public:
   void validateData();
 
   // Pre-process the currently stored data (digital filtering).
-  void preprocess() {}
+  void preprocess();
 
   // Functions to calculate balance parameters from the pre-processed data.
   void calculateParameters();
-  void calculateMeanForceX() {}
-  void calculateMeanForceY() {}
+  void calculateMeanForceX();
+  void calculateMeanForceY();
   void calculateSwayVariabilityX() {}
   void calculateSwayVariabilityY() {}
   // ...
 
   // Getters.
-  float getTimeframe() const { return 1.0; }
-  float getStartTime() const { return 1.0; }
-  float getStopTime() const { return 1.0; }
-  float getMeanForceX() const { return 1.0; }
-  float getMeanForceY() const { return 1.0; }
-  float getSwayVariabilityX() const { return 1.0; }
-  float getSwayVariabilityY() const { return 1.0; }
+  float getTimeframe() const { return timeframe_; }
+  float getStartTime() const { return startTime_; }
+  float getStopTime() const { return stopTime_; }
+  float getMeanForceX() const { return meanForceX_; }
+  float getMeanForceY() const { return meanForceY_; }
+  float getSwayVariabilityX() const { return swayVariabilityX_; }
+  float getSwayVariabilityY() const { return swayVariabilityY_; }
   // ...
 
 private:
   // The raw data.
   std::unordered_map<std::string, std::vector<float>> *rawData_;
   // The preprocessed data.
-  std::unordered_map<std::string, std::vector<float>> data_;
+  std::unordered_map<std::string, std::vector<float>> *data_;
 
   // If the data (and thus the whole object) is valid.
   bool isValid_;
+
+  // Time information
+  float timeframe_;
+  float startTime_;
+  float stopTime_;
 
   // The parameters.
   float meanForceX_;
@@ -72,6 +78,7 @@ private:
   // more parameters ...
 
   FRIEND_TEST(BalanceParametersTest, calculateMeanForceX);
+  FRIEND_TEST(BalanceParametersTest, calculateMeanForceY);
 };
 
 // A class for the data management. It is the "model" in the
@@ -91,7 +98,7 @@ private:
   // A KistlerFile to read the data from.
   KistlerCSVFile kistlerFile_;
 
-  // Balance parameters, regularly updated by the DataModel.
+  // Balance parameters, regularly updated by the WorkerThread.
   BalanceParameters balanceParameters_;
 
   // Name of the data file.
@@ -99,11 +106,20 @@ private:
 
   // Timeframe in seconds over which the parameters are calculated.
   float timeframe_;
-  // Start and stop times of the timeframe in seconds.
+  // Start and stop times of the currently processed timeframe in seconds.
   float startTime_;
   float stopTime_;
 
+  // Timer for regular re-calculation with newest data.
+  QTimer processingTimer_;
+
+private slots:
+  void process();
+
 public slots:
-  void onStartLiveView(std::string fileName, float timeframe);
-  void onStopLiveView();
+  void startProcessing(std::string fileName, float timeframe);
+  void stopProcessing();
+
+signals:
+  void dataUpdated(BalanceParameters *balanceParameters);
 };
