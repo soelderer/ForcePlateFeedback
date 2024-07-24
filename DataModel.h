@@ -7,6 +7,11 @@
 #include <QtCore/QObject>
 #include <QtCore/QTimer>
 
+// The current implementation is not for real live view, but playback of a CSV
+// file. This sets the speed of the playback (delay between re-processing in
+// ms).
+#define PLAYBACK_DELAY_MS 500
+
 // Placeholder for biomechanical toolkit (BTK):
 // https://biomechanical-toolkit.github.io/docs/API/
 
@@ -30,7 +35,7 @@ public:
   ~BalanceParameters() {}
 
   // Re-calculate parameters with given data.
-  void update(std::unordered_map<std::string, std::vector<float>> *data) {}
+  void update(std::unordered_map<std::string, std::vector<float>> *data);
 
   // Some sanity checks on the provided data.
   void validateData();
@@ -69,6 +74,7 @@ private:
   float timeframe_;
   float startTime_;
   float stopTime_;
+  int numRows_;
 
   // The parameters.
   float meanForceX_;
@@ -104,16 +110,28 @@ private:
   // Name of the data file.
   std::string fileName_;
 
-  // Timeframe in seconds over which the parameters are calculated.
+  // Timeframe in seconds over which the parameters should be calculated
+  // (user config).
+  float configTimeframe_;
+
+  // Timeframe in seconds over which the current parameters are calculated.
   float timeframe_;
   // Start and stop times of the currently processed timeframe in seconds.
   float startTime_;
   float stopTime_;
 
+  // Number of rows over which the current parameters are calculated.
+  int numRows_;
+  // First and last row numbers of the currently processed timeframe.
+  int firstRow_;
+  int lastRow_;
+
   // Timer for regular re-calculation with newest data.
   QTimer processingTimer_;
 
 private slots:
+  // Re-read the latest data and calculate the BalanceParameters.
+  // Emits a signal when parameters a ready for display.
   void process();
 
 public slots:

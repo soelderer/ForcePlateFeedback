@@ -106,8 +106,15 @@ void KistlerCSVFile::parseMetaData() {
     if (samplingRates_.size() > 1) {
       samplingRate_ = std::stof(samplingRates_[1]);
 
+      if (samplingRate_ == 0) {
+        std::cerr << "Error in KistlerCSVFile::parseMetaData(): Determined a "
+                     "sampling rate of the file of 0 Hz, it does not appear to "
+                     "be a valid BioWare file: "
+                  << fileName_ << std::endl;
+      }
       std::cout << "Detected sampling rate of " << samplingRate_ << "Hz."
                 << std::endl;
+
     } else {
       std::cerr
           << "Error in KistlerCSVFile::parseMetaData(): Could not "

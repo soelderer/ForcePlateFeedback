@@ -7,6 +7,11 @@
 BalanceParameters::BalanceParameters() {
   // Nothing to do.
   isValid_ = false;
+
+  timeframe_ = 0;
+  startTime_ = 0;
+  stopTime_ = 0;
+  numRows_ = 0;
 }
 
 // ____________________________________________________________________________
@@ -20,7 +25,50 @@ BalanceParameters::BalanceParameters(
 }
 
 // ____________________________________________________________________________
-void BalanceParameters::validateData() { isValid_ = true; }
+void BalanceParameters::update(
+    std::unordered_map<std::string, std::vector<float>> *data) {
+  rawData_ = data;
+
+  validateData();
+  preprocess();
+  calculateParameters();
+}
+
+// ____________________________________________________________________________
+void BalanceParameters::validateData() {
+  // Data is empty.
+  if (rawData_->size() == 0) {
+    timeframe_ = 0;
+    startTime_ = 0;
+    stopTime_ = 0;
+    numRows_ = 0;
+
+    isValid_ = false;
+    return;
+  }
+
+  // Check if there are at least the columns for time and force in x and y
+  // direction (add more checks if other parameters are calculated).
+  if (rawData_->count("abs time (s)") == 0 || rawData_->count("Fx") == 0 ||
+      rawData_->count("Fy") == 0) {
+    timeframe_ = 0;
+    startTime_ = 0;
+    stopTime_ = 0;
+    numRows_ = 0;
+
+    isValid_ = false;
+    return;
+  }
+
+  numRows_ = (*rawData_)["abs time (s)"].size();
+  startTime_ = (*rawData_)["abs time (s)"].front();
+  stopTime_ = (*rawData_)["abs time (s)"].back();
+  timeframe_ = stopTime_ - startTime_;
+
+  // TODO: real sanity checks ...
+
+  isValid_ = true;
+}
 
 // ____________________________________________________________________________
 void BalanceParameters::preprocess() { data_ = rawData_; }
@@ -56,29 +104,88 @@ void BalanceParameters::calculateMeanForceY() {
 }
 
 // ____________________________________________________________________________
-DataModel::DataModel() { running_ = false; }
+DataModel::DataModel() : running_(false) {
+  fileName_ = "";
+
+  configTimeframe_ = 0;
+
+  startTime_ = 0;
+  stopTime_ = 0;
+  timeframe_ = 0;
+
+  firstRow_ = 0;
+  lastRow_ = 0;
+  numRows_ = 0;
+
+  // Set up a timer for regular reprocessing.
+  // Current implementation is for playback of pre-existing CSV files,
+  // in a later stage we will switch to live view -> timers need to be
+  // adjusted.
+  processingTimer_.setInterval(PLAYBACK_DELAY_MS);
+
+  QObject::connect(&processingTimer_, &QTimer::timeout, this,
+                   &DataModel::process);
+}
 
 // ____________________________________________________________________________
 DataModel::~DataModel() {}
 
 // ____________________________________________________________________________
 void DataModel::startProcessing(std::string fileName, float timeframe) {
-  fileName_ = fileName;
-  timeframe_ = timeframe;
+  configTimeframe_ = timeframe;
+
+  // New file configured.
+  if (fileName != fileName_) {
+    fileName_ = fileName;
+    kistlerFile_ = KistlerCSVFile(fileName_);
+  }
 
   running_ = true;
 
-  // set up the timer
+  if (!processingTimer_.isActive())
+    processingTimer_.start();
 }
 
 // ____________________________________________________________________________
-void DataModel::stopProcessing() {}
+void DataModel::stopProcessing() {
+  if (processingTimer_.isActive()) {
+    processingTimer_.stop();
+    running_ = false;
+  }
+}
 
 // ____________________________________________________________________________
 void DataModel::process() {
+  // Determine number of rows we need to read with sampling rate and the
+  // configured timeframe.
+  // (sampling rate is guaranteed to be != 0)
+  int attemptedNumRows = timeframe_ / kistlerFile_.getSamplingRate();
 
-  kistlerFile_ = KistlerCSVFile(fileName_);
+  firstRow_++;
 
   std::unordered_map<std::string, std::vector<float>> data;
-  data = kistlerFile_.getData(0, 5);
+  data = kistlerFile_.getData(firstRow_, firstRow_ + attemptedNumRows);
+
+  if (data["abs time (s)"].size() != 0) {
+    balanceParameters_.update(&data);
+
+    lastRow_ = firstRow_ + data["abs time (s)"].size();
+    // firstRow_ already incremented above
+    numRows_ = data["abs time (s)"].size();
+
+    startTime_ = balanceParameters_.getStartTime();
+    stopTime_ = balanceParameters_.getStopTime();
+    timeframe_ = balanceParameters_.getTimeframe();
+
+    std::cout << "PARAMETER[meanX]: " << balanceParameters_.getMeanForceX()
+              << std::endl;
+    std::cout << "PARAMETER[meanY]: " << balanceParameters_.getMeanForceY()
+              << std::endl;
+  }
+
+  // Check if we reached EOF.
+  if (data["abs time (s)"].size() < attemptedNumRows) {
+    // reached EOF.
+    // stop processing, signal etc.
+  }
 }
