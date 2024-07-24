@@ -235,6 +235,106 @@ TEST(KistlerCSVFileTest, getDataByIndices) {
   ASSERT_FLOAT_EQ(data["Mz"][3], 0.005645);
   ASSERT_FLOAT_EQ(data["Ax"][3], -0.684146);
   ASSERT_FLOAT_EQ(data["Ay"][3], 0.052623);
+
+  // Get rows from the beginning to line 2.
+  data = kistlerFile.getData(-1, 1);
+  ASSERT_EQ(data.size(), 9);
+  ASSERT_EQ(data["abs time (s)"].size(), 2);
+  ASSERT_EQ(data["Fx"].size(), 2);
+  ASSERT_EQ(data["Fy"].size(), 2);
+  ASSERT_EQ(data["Fz"].size(), 2);
+  ASSERT_EQ(data["Mx"].size(), 2);
+  ASSERT_EQ(data["My"].size(), 2);
+  ASSERT_EQ(data["Mz"].size(), 2);
+  ASSERT_EQ(data["Ax"].size(), 2);
+  ASSERT_EQ(data["Ay"].size(), 2);
+  // Row 1.
+  ASSERT_FLOAT_EQ(data["abs time (s)"][0], 0);
+  ASSERT_FLOAT_EQ(data["Fx"][0], 0.145133);
+  ASSERT_FLOAT_EQ(data["Fy"][0], -0.010285);
+  ASSERT_FLOAT_EQ(data["Fz"][0], -0.126362);
+  ASSERT_FLOAT_EQ(data["Mx"][0], -0.362161);
+  ASSERT_FLOAT_EQ(data["My"][0], 0.150046);
+  ASSERT_FLOAT_EQ(data["Mz"][0], 0.001693);
+  ASSERT_FLOAT_EQ(data["Ax"][0], 0);
+  ASSERT_FLOAT_EQ(data["Ay"][0], 0);
+  // Row 2.
+  ASSERT_FLOAT_EQ(data["abs time (s)"][1], 0.001);
+  ASSERT_FLOAT_EQ(data["Fx"][1], -0.011368);
+  ASSERT_FLOAT_EQ(data["Fy"][1], -0.127600);
+  ASSERT_FLOAT_EQ(data["Fz"][1], -1.756052);
+  ASSERT_FLOAT_EQ(data["Mx"][1], -0.102902);
+  ASSERT_FLOAT_EQ(data["My"][1], -0.404231);
+  ASSERT_FLOAT_EQ(data["Mz"][1], 0.046690);
+  ASSERT_FLOAT_EQ(data["Ax"][1], 0);
+  ASSERT_FLOAT_EQ(data["Ay"][1], 0);
+
+  // Get rows from line 30 to EOF.
+  data = kistlerFile.getData(29, -1);
+  ASSERT_EQ(data.size(), 9);
+  ASSERT_EQ(data["abs time (s)"].size(), 2);
+  ASSERT_EQ(data["Fx"].size(), 2);
+  ASSERT_EQ(data["Fy"].size(), 2);
+  ASSERT_EQ(data["Fz"].size(), 2);
+  ASSERT_EQ(data["Mx"].size(), 2);
+  ASSERT_EQ(data["My"].size(), 2);
+  ASSERT_EQ(data["Mz"].size(), 2);
+  ASSERT_EQ(data["Ax"].size(), 2);
+  ASSERT_EQ(data["Ay"].size(), 2);
+  // Row 30.
+  ASSERT_FLOAT_EQ(data["abs time (s)"][0], 0.029);
+  ASSERT_FLOAT_EQ(data["Fx"][0], -0.050422);
+  ASSERT_FLOAT_EQ(data["Fy"][0], 0.145775);
+  ASSERT_FLOAT_EQ(data["Fz"][0], 0.852810);
+  ASSERT_FLOAT_EQ(data["Mx"][0], -0.029384);
+  ASSERT_FLOAT_EQ(data["My"][0], 0.141809);
+  ASSERT_FLOAT_EQ(data["Mz"][0], 0.007898);
+  ASSERT_FLOAT_EQ(data["Ax"][0], -0.166285);
+  ASSERT_FLOAT_EQ(data["Ay"][0], -0.034456);
+  // Row 31.
+  ASSERT_FLOAT_EQ(data["abs time (s)"][1], 0.03);
+  ASSERT_FLOAT_EQ(data["Fx"][1], -0.011408);
+  ASSERT_FLOAT_EQ(data["Fy"][1], -0.205690);
+  ASSERT_FLOAT_EQ(data["Fz"][1], -0.125492);
+  ASSERT_FLOAT_EQ(data["Mx"][1], 0.069752);
+  ASSERT_FLOAT_EQ(data["My"][1], 0.006508);
+  ASSERT_FLOAT_EQ(data["Mz"][1], 0.067055);
+  ASSERT_FLOAT_EQ(data["Ax"][1], 0);
+  ASSERT_FLOAT_EQ(data["Ay"][1], 0);
+
+  // Read a whole file.
+  kistlerFile = KistlerCSVFile("example_data/KistlerCSV_stub.txt");
+  data = kistlerFile.getData(-1, -1);
+  ASSERT_EQ(data.size(), 9);
+  ASSERT_EQ(data["abs time (s)"].size(), 2);
+  ASSERT_EQ(data["Fx"].size(), 2);
+  ASSERT_EQ(data["Fy"].size(), 2);
+  ASSERT_EQ(data["Fz"].size(), 2);
+  ASSERT_EQ(data["Mx"].size(), 2);
+  ASSERT_EQ(data["My"].size(), 2);
+  ASSERT_EQ(data["Mz"].size(), 2);
+  ASSERT_EQ(data["Ax"].size(), 2);
+  ASSERT_EQ(data["Ay"].size(), 2);
+  // Row 30.
+  ASSERT_FLOAT_EQ(data["abs time (s)"][0], 0.029);
+  ASSERT_FLOAT_EQ(data["Fx"][0], -0.050422);
+  ASSERT_FLOAT_EQ(data["Fy"][0], 0.145775);
+  ASSERT_FLOAT_EQ(data["Fz"][0], 0.852810);
+  ASSERT_FLOAT_EQ(data["Mx"][0], -0.029384);
+  ASSERT_FLOAT_EQ(data["My"][0], 0.141809);
+  ASSERT_FLOAT_EQ(data["Mz"][0], 0.007898);
+  ASSERT_FLOAT_EQ(data["Ax"][0], -0.166285);
+  ASSERT_FLOAT_EQ(data["Ay"][0], -0.034456);
+  // Row 31.
+  ASSERT_FLOAT_EQ(data["abs time (s)"][1], 0.03);
+  ASSERT_FLOAT_EQ(data["Fx"][1], -0.011408);
+  ASSERT_FLOAT_EQ(data["Fy"][1], -0.205690);
+  ASSERT_FLOAT_EQ(data["Fz"][1], -0.125492);
+  ASSERT_FLOAT_EQ(data["Mx"][1], 0.069752);
+  ASSERT_FLOAT_EQ(data["My"][1], 0.006508);
+  ASSERT_FLOAT_EQ(data["Mz"][1], 0.067055);
+  ASSERT_FLOAT_EQ(data["Ax"][1], 0);
+  ASSERT_FLOAT_EQ(data["Ay"][1], 0);
 }
 
 // ____________________________________________________________________________

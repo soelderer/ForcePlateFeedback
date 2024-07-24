@@ -170,13 +170,6 @@ KistlerCSVFile::getData(int startRow, int stopRow) const {
     data[column] = std::vector<float>();
   }
 
-  // We can reserve some memory in advance to avoid multiple allocations.
-  if (startRow != -1 && stopRow != -1) {
-    for (auto &column : data) {
-      column.second.reserve(stopRow - startRow + 1);
-    }
-  }
-
   std::ifstream file(fileName_);
   std::string line;
   std::getline(file, line);
@@ -198,19 +191,27 @@ KistlerCSVFile::getData(int startRow, int stopRow) const {
   if (stopRow != -1 && startRow != -1) {
     nRows = stopRow - startRow + 1;
   } else if (stopRow != -1 && startRow == -1) {
-    nRows = stopRow;
+    nRows = stopRow + 1;
   } else {
-    nRows = -1; // indicator to read the whole file in the loop below
+    nRows = -1; // indicator to read until EOF in the loop below.
+  }
+
+  // We can reserve some memory in advance to avoid multiple allocations.
+  if (nRows != -1) {
+    for (auto &column : data) {
+      column.second.reserve(nRows);
+    }
   }
 
   // Read nRows lines.
   bool done = false;
   int i = 0;
   do {
-    // Continue if we either read the whole file or until we reach nRows.
+    // Continue if we have not reached nRows yet OR we should read until EOF
+    // (nRows == -1).
     std::cout << "i = " << i << "; nRows = " << nRows << std::endl;
 
-    if (nRows != -1 && i < nRows) {
+    if ((nRows != -1 && i < nRows) || nRows == -1) {
       std::cout << "entered nRows != -1 && i < nRows." << std::endl;
       if (!std::getline(file, line)) {
         std::cout << "reached EOF" << std::endl;
