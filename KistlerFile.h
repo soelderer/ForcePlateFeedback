@@ -59,6 +59,8 @@ public:
 
   bool isValid() const { return isValid_; }
 
+  virtual void test() = 0;
+
 protected:
   std::string fileName_;
   bool isValid_;
@@ -98,6 +100,8 @@ public:
   static std::vector<float>
   stringToFloatVector(std::vector<std::string> stringVector);
 
+  void test() override;
+
   FRIEND_TEST(KistlerFileTest, KistlerCSVFileConstructor);
 
 private:
@@ -125,4 +129,6 @@ public:
 
   std::unordered_map<std::string, std::vector<float>>
   getData(float startTime = -1, float stopTime = -1) const override {}
+
+  void test() override {}
 };

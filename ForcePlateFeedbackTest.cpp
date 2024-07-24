@@ -6,29 +6,31 @@
 
 TEST(KistlerCSVFileTest, validateFile) {
   // A proper file.
-  KistlerCSVFile kistlerFile("./KistlerCSV_example.txt");
-  ASSERT_EQ(kistlerFile.getFilename(), "./KistlerCSV_example.txt");
+  KistlerCSVFile kistlerFile("./example_data/KistlerCSV_example.txt");
+  ASSERT_EQ(kistlerFile.getFilename(), "./example_data/KistlerCSV_example.txt");
 
   kistlerFile.validateFile();
   ASSERT_TRUE(kistlerFile.isValid());
 
   // An empty file.
-  kistlerFile = KistlerCSVFile("./KistlerCSV_empty.txt");
-  ASSERT_EQ(kistlerFile.getFilename(), "./KistlerCSV_empty.txt");
+  kistlerFile = KistlerCSVFile("./example_data/KistlerCSV_empty.txt");
+  ASSERT_EQ(kistlerFile.getFilename(), "./example_data/KistlerCSV_empty.txt");
 
   kistlerFile.validateFile();
   ASSERT_FALSE(kistlerFile.isValid());
 
   // A file with missing magic number.
-  kistlerFile = KistlerCSVFile("./KistlerCSV_wrong_magic.txt");
-  ASSERT_EQ(kistlerFile.getFilename(), "./KistlerCSV_wrong_magic.txt");
+  kistlerFile = KistlerCSVFile("./example_data/KistlerCSV_wrong_magic.txt");
+  ASSERT_EQ(kistlerFile.getFilename(),
+            "./example_data/KistlerCSV_wrong_magic.txt");
 
   kistlerFile.validateFile();
   ASSERT_FALSE(kistlerFile.isValid());
 
   // A file with improper column headers.
-  kistlerFile = KistlerCSVFile("./KistlerCSV_wrong_column.txt");
-  ASSERT_EQ(kistlerFile.getFilename(), "./KistlerCSV_wrong_column.txt");
+  kistlerFile = KistlerCSVFile("./example_data/KistlerCSV_wrong_column.txt");
+  ASSERT_EQ(kistlerFile.getFilename(),
+            "./example_data/KistlerCSV_wrong_column.txt");
 
   kistlerFile.validateFile();
   ASSERT_FALSE(kistlerFile.isValid());

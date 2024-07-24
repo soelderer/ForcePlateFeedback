@@ -5,7 +5,7 @@
 QT_DIR = /usr
 MOC = /usr/lib/qt6/moc
 CXX = clang++
-CXXFLAGS = -I$(QT_DIR)/include/qt6 -Wall -Wextra -Wdeprecated -fsanitize=address -g -std=c++17
+CXXFLAGS = -I$(QT_DIR)/include/qt6 -Wall -Wextra -Wdeprecated -fsanitize=address,undefined -g -std=c++17
 MAIN_BINARY = $(basename $(wildcard *Main.cpp))
 TEST_BINARY = $(basename $(wildcard *Test.cpp))
 LIBS = -lncurses -lQt6Core -lQt6Gui -lQt6Widgets

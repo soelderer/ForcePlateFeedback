@@ -44,7 +44,7 @@ private:
 
 public slots:
   // Communication with ForcePlateFeedback class.
-  void onStartLiveView();
+  void onStartLiveView(std::string fileName, float timeframe);
   void onStopLiveView();
 };
 
@@ -84,7 +84,7 @@ private slots:
 
 public slots:
   // Communication with ForcePlateFeedback class.
-  void onStartLiveView();
+  void onStartLiveView(std::string fileName, float timeframe);
   void onStopLiveView();
 
 signals:
@@ -124,7 +124,7 @@ private:
   bool validateConfigOptions(std::string fileName, float timeframe);
 
 signals:
-  void startLiveView();
+  void startLiveView(std::string fileName, float timeframe);
   void stopLiveView();
 
 private slots:

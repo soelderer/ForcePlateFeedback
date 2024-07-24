@@ -21,28 +21,24 @@
 // complicated parameters like sway variability.
 class BalanceParameters {
 public:
-  // Constructor with specified start and stop times. This will determine the
-  // timeframe.
-  BalanceParameters(KistlerFile *kistlerFile, float startTime, float stopTime) {
-  }
-  // Constructor with specified timeframe. This will set stopTime to the latest
-  // available data point and determine startTime. Useful to retrieve e.g.
-  // the latest 50 ms of data.
-  BalanceParameters(KistlerCSVFile *kistlerFile, float timeframe) {}
-  BalanceParameters() {}
+  // Constructor with data provided.
+  BalanceParameters(std::unordered_map<std::string, std::vector<float>> *data);
+
+  // Default constructor.
+  BalanceParameters();
   ~BalanceParameters() {}
 
-  // Update the data, i.e. get and store the latest data from the file while
-  // keeping the timeframe constant.
-  void updateData() {}
+  // Re-calculate parameters with given data.
+  void update(std::unordered_map<std::string, std::vector<float>> *data) {}
+
+  // Some sanity checks on the provided data.
+  void validateData();
 
   // Pre-process the currently stored data (digital filtering).
   void preprocess() {}
 
-  // Re-calculate the parameters with the current precessed data.
-  void recalculate() {}
-
   // Functions to calculate balance parameters from the pre-processed data.
+  void calculateParameters();
   void calculateMeanForceX() {}
   void calculateMeanForceY() {}
   void calculateSwayVariabilityX() {}
@@ -60,20 +56,13 @@ public:
   // ...
 
 private:
-  // A KistlerFile to read the data from.
-  KistlerFile *KisterDatFile_;
-  // Timeframe in seconds over which the parameters are calculated.
-  float timeframe_;
-  // Start and stop times of the timeframe in seconds.
-  float startTime_;
-  float stopTime_;
-  // Maybe it's necessary to implemement start and stop based on row indices as
-  // well.
-
   // The raw data.
-  std::unordered_map<std::string, std::vector<float>> rawData_;
+  std::unordered_map<std::string, std::vector<float>> *rawData_;
   // The preprocessed data.
   std::unordered_map<std::string, std::vector<float>> data_;
+
+  // If the data (and thus the whole object) is valid.
+  bool isValid_;
 
   // The parameters.
   float meanForceX_;
@@ -91,7 +80,30 @@ private:
 class DataModel : public QObject {
   Q_OBJECT
 
+public:
+  DataModel();
+  ~DataModel();
+
 private:
+  // State variables.
+  bool running_;
+
+  // A KistlerFile to read the data from.
   KistlerCSVFile kistlerFile_;
+
+  // Balance parameters, regularly updated by the DataModel.
   BalanceParameters balanceParameters_;
+
+  // Name of the data file.
+  std::string fileName_;
+
+  // Timeframe in seconds over which the parameters are calculated.
+  float timeframe_;
+  // Start and stop times of the timeframe in seconds.
+  float startTime_;
+  float stopTime_;
+
+public slots:
+  void onStartLiveView(std::string fileName, float timeframe);
+  void onStopLiveView();
 };

@@ -57,7 +57,7 @@ void ConfigWindow::handleStartButton() {
 }
 
 // ____________________________________________________________________________
-void ConfigWindow::onStartLiveView() {
+void ConfigWindow::onStartLiveView(std::string fileName, float timeframe) {
   startButton_->setText("Stop");
 
   setFileButton_->setEnabled(false);
@@ -97,7 +97,9 @@ void OutputWindow::show() { window_->show(); }
 void OutputWindow::hide() { window_->hide(); }
 
 // ____________________________________________________________________________
-void OutputWindow::onStartLiveView() { show(); }
+void OutputWindow::onStartLiveView(std::string fileName, float timeframe) {
+  show();
+}
 
 // ____________________________________________________________________________
 void OutputWindow::onStopLiveView() { hide(); }
@@ -107,29 +109,39 @@ ForcePlateFeedback::ForcePlateFeedback() {
   running_ = false;
   configWindow_ = new ConfigWindow();
   outputWindow_ = new OutputWindow();
+  dataModel_ = new DataModel();
 
   // Signal for start button pressed.
   QObject::connect(configWindow_, &ConfigWindow::startButtonPressed, this,
                    &ForcePlateFeedback::onStartButtonPressed);
 
   // State notification signals.
+  // Start live view.
   QObject::connect(this, &ForcePlateFeedback::startLiveView, configWindow_,
                    &ConfigWindow::onStartLiveView);
 
   QObject::connect(this, &ForcePlateFeedback::startLiveView, outputWindow_,
                    &OutputWindow::onStartLiveView);
 
+  QObject::connect(this, &ForcePlateFeedback::startLiveView, dataModel_,
+                   &DataModel::onStartLiveView);
+
+  // Stop live view.
   QObject::connect(this, &ForcePlateFeedback::stopLiveView, configWindow_,
                    &ConfigWindow::onStopLiveView);
 
   QObject::connect(this, &ForcePlateFeedback::stopLiveView, outputWindow_,
                    &OutputWindow::onStopLiveView);
+
+  QObject::connect(this, &ForcePlateFeedback::stopLiveView, dataModel_,
+                   &DataModel::onStopLiveView);
 }
 
 // ____________________________________________________________________________
 ForcePlateFeedback::~ForcePlateFeedback() {
   delete configWindow_;
   delete outputWindow_;
+  delete dataModel_;
 }
 
 // ____________________________________________________________________________
@@ -159,7 +171,7 @@ void ForcePlateFeedback::onStartButtonPressed(QString fileName,
   // Initialize the data model.
 
   // Notify ConfigWindow, OutputWindow and DataModel about the start.
-  emit startLiveView();
+  emit startLiveView(fileName_, timeframe_);
 
   std::cout << "Starting live view." << std::endl;
 }

@@ -17,6 +17,8 @@ KistlerCSVFile::KistlerCSVFile(const std::string &fileName)
 
 // ____________________________________________________________________________
 void KistlerCSVFile::validateFile() {
+  std::cout << "This is validateFile()." << std::endl;
+
   std::ifstream file(fileName_);
 
   // makes sense?
@@ -142,39 +144,53 @@ KistlerCSVFile::stringToFloatVector(std::vector<std::string> stringVector) {
 // ____________________________________________________________________________
 std::unordered_map<std::string, std::vector<float>>
 KistlerCSVFile::getData(int startRow, int stopRow) const {
-  // Method to extract raw data from the file by row indices.
-  // startRow and stopRow specify which rows to return from the file
-  // (zero-based indexing).
-  // Use negative indices for retrieving all data, e.g. startRow = -1
-  // and stopRow = -1 will return all data; startRow = 26 and stopRow = -1
-  // will return data from row 27 until the end of the file.
-  // It returns a map, so that the data columns can be accessed by their
-  // column names, e.g. "Fx"
+  // std::cout << "This is getData(); " << std::endl;
 
-  // Check for invalid row indices.
-  if (stopRow < startRow && stopRow != -1) {
-    std::cerr << "Error in KistlerCSVFile::getData(): Invalid row indices "
-                 "startRow and/or stopRow. This can happen e.g. if startRow > "
-                 "stopRow."
-              << std::endl;
-    exit(EXIT_FAILURE); // replace with exception handling
-  }
+  // // Method to extract raw data from the file by row indices.
+  // // startRow and stopRow specify which rows to return from the file
+  // // (zero-based indexing).
+  // // Use negative indices for retrieving all data, e.g. startRow = -1
+  // // and stopRow = -1 will return all data; startRow = 26 and stopRow = -1
+  // // will return data from row 27 until the end of the file.
+  // // It returns a map, so that the data columns can be accessed by their
+  // // column names, e.g. "Fx"
 
-  std::unordered_map<std::string, std::vector<float>> data;
+  // // Check for invalid row indices.
+  // if (stopRow < startRow && stopRow != -1) {
+  //   std::cerr << "Error in KistlerCSVFile::getData(): Invalid row indices "
+  //                "startRow and/or stopRow. This can happen e.g. if startRow >
+  //                " "stopRow."
+  //             << std::endl;
+  //   exit(EXIT_FAILURE); // replace with exception handling
+  // }
 
-  for (const auto &column : columnNames_) {
-    data[column] = std::vector<float>();
-  }
+  // std::unordered_map<std::string, std::vector<float>> data;
 
-  // We can reserve some memory in advance to avoid multiple allocations.
-  if (startRow != -1 && stopRow != -1) {
-    for (auto &column : data) {
-      column.second.reserve(stopRow - startRow + 1);
-    }
-  }
+  // for (const auto &column : columnNames_) {
+  //   data[column] = std::vector<float>();
+  // }
 
-  // rest of the logic
+  // // We can reserve some memory in advance to avoid multiple allocations.
+  // if (startRow != -1 && stopRow != -1) {
+  //   for (auto &column : data) {
+  //     column.second.reserve(stopRow - startRow + 1);
+  //   }
+  // }
+
+  // std::ifstream file(fileName_);
+  // std::string line;
+  // std::getline(file, line);
+
+  // // Data starts at line 20.
+  // for (int i = 0; i < 19; i++) {
+  //   std::getline(file, line);
+  // }
+
+  // std::cout << line << std::endl;
 }
 
 // ____________________________________________________________________________
 void KistlerDatFile::validateFile() {}
+
+// ____________________________________________________________________________
+void KistlerCSVFile::test() { std::cout << "this is test" << std::endl; }
