@@ -83,9 +83,39 @@ OutputWindow::OutputWindow() {
 
   QGridLayout *windowLayout = new QGridLayout;
 
-  label_ = new QLabel("Plots ...");
+  chart_ = new QChart();
+  series_ = new QBarSeries();
+  set_ = new QBarSet("Values");
 
-  windowLayout->addWidget(label_, 0, 0);
+  *set_ << 0 << 0;
+
+  series_->append(set_);
+
+  chart_->addSeries(series_);
+  chart_->setAnimationOptions(QChart::NoAnimation);
+  chart_->setTheme(QChart::ChartThemeBlueIcy);
+
+  categories_.append("X");
+  categories_.append("Y");
+
+  axisX_ = new QBarCategoryAxis();
+  axisX_->append(categories_);
+  chart_->addAxis(axisX_, Qt::AlignBottom);
+  series_->attachAxis(axisX_);
+
+  axisY_ = new QValueAxis();
+  axisY_->setRange(-10, 10);
+  chart_->addAxis(axisY_, Qt::AlignLeft);
+  series_->attachAxis(axisY_);
+
+  // No legend
+  chart_->legend()->setVisible(false);
+
+  // Create a chart view and set the chart
+  chartView_ = new QChartView(chart_);
+  chartView_->setRenderHint(QPainter::Antialiasing);
+
+  windowLayout->addWidget(chartView_, 0, 0);
 
   window_->setLayout(windowLayout);
 }
@@ -103,6 +133,17 @@ void OutputWindow::onStartLiveView(std::string fileName, float timeframe) {
 
 // ____________________________________________________________________________
 void OutputWindow::onStopLiveView() { hide(); }
+
+// ____________________________________________________________________________
+void OutputWindow::onDataUpdated(BalanceParameters *balanceParameters) {
+  set_->replace(0, balanceParameters->getMeanForceX());
+  set_->replace(1, balanceParameters->getMeanForceY());
+
+  chartView_->repaint();
+
+  // qDebug() << "OutputWindow: updated data with " << set_[0] << "and" <<
+  // set_[1];
+}
 
 // ____________________________________________________________________________
 ForcePlateFeedback::ForcePlateFeedback() {
@@ -139,7 +180,8 @@ ForcePlateFeedback::ForcePlateFeedback() {
   // Data updated.
   QObject::connect(dataModel_, &DataModel::dataUpdated, this,
                    &ForcePlateFeedback::onDataUpdated);
-  // maybe directly connect to OutputWindow?
+  QObject::connect(dataModel_, &DataModel::dataUpdated, outputWindow_,
+                   &OutputWindow::onDataUpdated);
 
   // Reached EOF.
   QObject::connect(dataModel_, &DataModel::reachedEOF, this,

@@ -8,7 +8,7 @@ CXX = clang++
 CXXFLAGS = -I$(QT_DIR)/include/qt6 -Wall -Wextra -Wdeprecated -fsanitize=address,undefined -g -std=c++17
 MAIN_BINARY = $(basename $(wildcard *Main.cpp))
 TEST_BINARY = $(basename $(wildcard *Test.cpp))
-LIBS = -lncurses -lQt6Core -lQt6Gui -lQt6Widgets
+LIBS = -lncurses -lQt6Core -lQt6Gui -lQt6Widgets -lQt6Charts
 TESTLIBS = -lgtest -lgtest_main -lpthread
 OBJECTS = $(addsuffix .o, $(basename $(filter-out %Main.cpp %Test.cpp, $(wildcard *.cpp))))
 MOC_OBJECTS = moc_ForcePlateFeedback.o moc_DataModel.o

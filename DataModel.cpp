@@ -200,9 +200,6 @@ void DataModel::process() {
            << data["abs time (s)"].size();
   qDebug() << "DataModel::process(): attemptedNumRows = " << attemptedNumRows;
 
-  // weitermachen .... irgendwo bei attemptedNumRows, lastRow usw. liegt der
-  // Hund
-
   // Check if we reached EOF.
   if (data["abs time (s)"].size() < attemptedNumRows) {
     qDebug() << "DataModel::process(): reached EOF";

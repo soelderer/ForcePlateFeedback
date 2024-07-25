@@ -11,6 +11,11 @@
 #pragma once
 
 #include "./DataModel.h"
+#include <QtCharts/QBarCategoryAxis>
+#include <QtCharts/QBarSeries>
+#include <QtCharts/QBarSet>
+#include <QtCharts/QChartView>
+#include <QtCharts/QValueAxis>
 #include <QtGui/QIntValidator>
 #include <QtWidgets/QApplication>
 #include <QtWidgets/QFileDialog>
@@ -42,10 +47,20 @@ private:
   QWidget *window_;
   QLabel *label_;
 
+  // The plot.
+  QChart *chart_;
+  QBarSeries *series_;
+  QBarSet *set_;
+  QStringList categories_;
+  QBarCategoryAxis *axisX_;
+  QValueAxis *axisY_;
+  QChartView *chartView_;
+
 public slots:
   // Communication with ForcePlateFeedback class.
   void onStartLiveView(std::string fileName, float timeframe);
   void onStopLiveView();
+  void onDataUpdated(BalanceParameters *balanceParameters);
 };
 
 // A class for the implementation of the configuration window.
