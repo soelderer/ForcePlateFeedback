@@ -15,6 +15,7 @@
 #include <QtCharts/QBarSeries>
 #include <QtCharts/QBarSet>
 #include <QtCharts/QChartView>
+#include <QtCharts/QHorizontalBarSeries>
 #include <QtCharts/QValueAxis>
 #include <QtGui/QIntValidator>
 #include <QtWidgets/QApplication>
@@ -48,13 +49,20 @@ private:
   QLabel *label_;
 
   // The plot.
-  QChart *chart_;
-  QBarSeries *series_;
-  QBarSet *set_;
-  QStringList categories_;
-  QBarCategoryAxis *axisX_;
-  QValueAxis *axisY_;
-  QChartView *chartView_;
+  QChart *xChart_;
+  QBarSeries *xSeries_;
+  QBarSet *xSet_;
+  QStringList xCategories_;
+  QBarCategoryAxis *xAxisX_;
+  QValueAxis *xAxisY_;
+  QChartView *xChartView_;
+  QChart *yChart_;
+  QHorizontalBarSeries *ySeries_;
+  QBarSet *ySet_;
+  QStringList yCategories_;
+  QBarCategoryAxis *yAxisY_;
+  QValueAxis *yAxisX_;
+  QChartView *yChartView_;
 
 public slots:
   // Communication with ForcePlateFeedback class.

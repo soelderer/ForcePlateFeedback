@@ -83,39 +83,72 @@ OutputWindow::OutputWindow() {
 
   QGridLayout *windowLayout = new QGridLayout;
 
-  chart_ = new QChart();
-  series_ = new QBarSeries();
-  set_ = new QBarSet("Values");
+  // Chart for Force in X direction.
+  xChart_ = new QChart();
+  xSeries_ = new QBarSeries();
+  xSet_ = new QBarSet("Values");
 
-  *set_ << 0 << 0;
+  *xSet_ << 0;
 
-  series_->append(set_);
+  xSeries_->append(xSet_);
 
-  chart_->addSeries(series_);
-  chart_->setAnimationOptions(QChart::NoAnimation);
-  chart_->setTheme(QChart::ChartThemeBlueIcy);
+  xChart_->addSeries(xSeries_);
+  xChart_->setAnimationOptions(QChart::NoAnimation);
+  xChart_->setTheme(QChart::ChartThemeBlueIcy);
 
-  categories_.append("X");
-  categories_.append("Y");
+  xCategories_.append("X");
 
-  axisX_ = new QBarCategoryAxis();
-  axisX_->append(categories_);
-  chart_->addAxis(axisX_, Qt::AlignBottom);
-  series_->attachAxis(axisX_);
+  xAxisX_ = new QBarCategoryAxis();
+  xAxisX_->append(xCategories_);
+  xChart_->addAxis(xAxisX_, Qt::AlignBottom);
+  xSeries_->attachAxis(xAxisX_);
 
-  axisY_ = new QValueAxis();
-  axisY_->setRange(-10, 10);
-  chart_->addAxis(axisY_, Qt::AlignLeft);
-  series_->attachAxis(axisY_);
+  xAxisY_ = new QValueAxis();
+  xAxisY_->setRange(-10, 10);
+  xChart_->addAxis(xAxisY_, Qt::AlignLeft);
+  xSeries_->attachAxis(xAxisY_);
 
   // No legend
-  chart_->legend()->setVisible(false);
+  xChart_->legend()->setVisible(false);
 
   // Create a chart view and set the chart
-  chartView_ = new QChartView(chart_);
-  chartView_->setRenderHint(QPainter::Antialiasing);
+  xChartView_ = new QChartView(xChart_);
+  xChartView_->setRenderHint(QPainter::Antialiasing);
 
-  windowLayout->addWidget(chartView_, 0, 0);
+  // Chart for force in Y direction.
+  yChart_ = new QChart();
+  ySeries_ = new QHorizontalBarSeries();
+  ySet_ = new QBarSet("Values");
+
+  *ySet_ << 0;
+
+  ySeries_->append(ySet_);
+
+  yChart_->addSeries(ySeries_);
+  yChart_->setAnimationOptions(QChart::NoAnimation);
+  yChart_->setTheme(QChart::ChartThemeBlueIcy);
+
+  yCategories_.append("Y");
+
+  yAxisX_ = new QValueAxis();
+  yAxisX_->setRange(-10, 10);
+  yChart_->addAxis(yAxisX_, Qt::AlignBottom);
+  ySeries_->attachAxis(yAxisX_);
+
+  yAxisY_ = new QBarCategoryAxis();
+  yAxisY_->append(yCategories_);
+  yChart_->addAxis(yAxisY_, Qt::AlignLeft);
+  ySeries_->attachAxis(yAxisY_);
+
+  // No legend
+  yChart_->legend()->setVisible(false);
+
+  // Create a chart view and set the chart
+  yChartView_ = new QChartView(yChart_);
+  yChartView_->setRenderHint(QPainter::Antialiasing);
+
+  windowLayout->addWidget(xChartView_, 0, 0);
+  windowLayout->addWidget(yChartView_, 0, 1);
 
   window_->setLayout(windowLayout);
 }
@@ -136,10 +169,11 @@ void OutputWindow::onStopLiveView() { hide(); }
 
 // ____________________________________________________________________________
 void OutputWindow::onDataUpdated(BalanceParameters *balanceParameters) {
-  set_->replace(0, balanceParameters->getMeanForceX());
-  set_->replace(1, balanceParameters->getMeanForceY());
+  xSet_->replace(0, balanceParameters->getMeanForceX());
+  ySet_->replace(0, balanceParameters->getMeanForceY());
 
-  chartView_->repaint();
+  xChartView_->repaint();
+  yChartView_->repaint();
 
   // qDebug() << "OutputWindow: updated data with " << set_[0] << "and" <<
   // set_[1];
