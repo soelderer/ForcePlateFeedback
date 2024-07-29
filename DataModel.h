@@ -146,4 +146,5 @@ signals:
   void dataUpdated(BalanceParameters *balanceParameters);
   void reachedEOF();
   void invalidFileSignal(std::string fileName_);
+  void corruptFileSignal();
 };

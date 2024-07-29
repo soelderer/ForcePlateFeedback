@@ -236,11 +236,9 @@ KistlerCSVFile::getData(int startRow, int stopRow) const {
           float value = std::stof(row[j]);
           data->at(columnNames_[j]).push_back(value);
         } catch (std::exception &e) {
-          std::cerr
-              << "Error in KistlerCSVFile::stringToFloatVector(): Cannot "
-                 "convert string to float. Seems like the data is corrupt."
-              << std::endl;
-          exit(EXIT_FAILURE); // TODO: proper error dialogs...
+          throw CorruptKistlerFileException(
+              "Error in KistlerCSVFile::getData(): Cannot convert string to "
+              "float. Seems like the data is corrupt.");
         }
       }
       i++;

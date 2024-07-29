@@ -115,3 +115,11 @@ private:
 //   std::unordered_map<std::string, std::vector<float>> &
 //   getData(int startRow = -1, int stopRow = -1) const override {}
 // };
+
+// Custom exception that is thrown when getData() fails to convert a data cell
+// to float.
+struct CorruptKistlerFileException : public std::exception {
+  CorruptKistlerFileException(std::string msg) : msg_(std::move(msg)) {}
+  const char *what() const noexcept override { return msg_.c_str(); }
+  std::string msg_;
+};

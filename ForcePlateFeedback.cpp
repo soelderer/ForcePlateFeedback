@@ -227,6 +227,10 @@ ForcePlateFeedback::ForcePlateFeedback() {
   // Invalid file selected.
   QObject::connect(dataModel_, &DataModel::invalidFileSignal, this,
                    &ForcePlateFeedback::onInvalidFile);
+
+  // Corrupt file (low-level errors while processing the file).
+  QObject::connect(dataModel_, &DataModel::corruptFileSignal, this,
+                   &ForcePlateFeedback::onCorruptFile);
 }
 
 // ____________________________________________________________________________
@@ -304,4 +308,13 @@ void ForcePlateFeedback::onInvalidFile(std::string fileName) {
       "File does not "
       "appear to be a valid BioWare file. Please double-check.");
   invalidFileDialog.exec();
+}
+
+// ____________________________________________________________________________
+void ForcePlateFeedback::onCorruptFile() {
+  stopLiveView();
+  QMessageBox corruptFileDialog;
+  corruptFileDialog.setText("Stumbled upon invalid data while processing the "
+                            "file. Seems like the data is corrupt. Aborting.");
+  corruptFileDialog.exec();
 }

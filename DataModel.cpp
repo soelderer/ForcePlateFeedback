@@ -174,29 +174,35 @@ void DataModel::process() {
 
   int attemptedNumRows = configTimeframe_ * kistlerFile_.getSamplingRate();
 
-  auto data = kistlerFile_.getData(firstRow_, firstRow_ + attemptedNumRows - 1);
+  try {
+    auto data =
+        kistlerFile_.getData(firstRow_, firstRow_ + attemptedNumRows - 1);
 
-  if (data->at("abs time (s)").size() != 0) {
-    balanceParameters_.update(data);
+    if (data->at("abs time (s)").size() != 0) {
+      balanceParameters_.update(data);
 
-    // Period is 1 / sampling rate, * 1000 to get it in miliseconds.
-    firstRow_ =
-        firstRow_ + PLAYBACK_DELAY_MS / kistlerFile_.getSamplingRate() * 1000;
+      // Period is 1 / sampling rate, * 1000 to get it in miliseconds.
+      firstRow_ =
+          firstRow_ + PLAYBACK_DELAY_MS / kistlerFile_.getSamplingRate() * 1000;
 
-    lastRow_ = firstRow_ + data->at("abs time (s)").size();
-    numRows_ = data->at("abs time (s)").size();
+      lastRow_ = firstRow_ + data->at("abs time (s)").size();
+      numRows_ = data->at("abs time (s)").size();
 
-    startTime_ = balanceParameters_.getStartTime();
-    stopTime_ = balanceParameters_.getStopTime();
-    timeframe_ = balanceParameters_.getTimeframe();
-  }
+      startTime_ = balanceParameters_.getStartTime();
+      stopTime_ = balanceParameters_.getStopTime();
+      timeframe_ = balanceParameters_.getTimeframe();
+    }
 
-  emit dataUpdated(&balanceParameters_);
+    emit dataUpdated(&balanceParameters_);
 
-  // Check if we reached EOF.
-  if (data->at("abs time (s)").size() < attemptedNumRows) {
-    qDebug() << "DataModel::process(): reached EOF";
-    emit reachedEOF();
+    // Check if we reached EOF.
+    if (data->at("abs time (s)").size() < attemptedNumRows) {
+      qDebug() << "DataModel::process(): reached EOF";
+      emit reachedEOF();
+    }
+  } catch (CorruptKistlerFileException &e) {
+    qWarning() << e.what();
+    emit corruptFileSignal();
   }
 }
 
