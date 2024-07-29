@@ -50,8 +50,6 @@ public:
   void calculateParameters();
   void calculateMeanForceX();
   void calculateMeanForceY();
-  void calculateSwayVariabilityX() {}
-  void calculateSwayVariabilityY() {}
   // ...
 
   // Getters.
@@ -60,8 +58,6 @@ public:
   float getStopTime() const { return stopTime_; }
   float getMeanForceX() const { return meanForceX_; }
   float getMeanForceY() const { return meanForceY_; }
-  float getSwayVariabilityX() const { return swayVariabilityX_; }
-  float getSwayVariabilityY() const { return swayVariabilityY_; }
   // ...
 
 private:
@@ -82,8 +78,6 @@ private:
   // The parameters.
   float meanForceX_;
   float meanForceY_;
-  float swayVariabilityX_;
-  float swayVariabilityY_;
   // more parameters ...
 
   FRIEND_TEST(BalanceParametersTest, calculateMeanForceX);

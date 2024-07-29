@@ -159,32 +159,6 @@ std::vector<std::string> KistlerCSVFile::sliceRow(std::string line,
 }
 
 // ____________________________________________________________________________
-std::vector<float>
-KistlerCSVFile::stringToFloatVector(std::vector<std::string> stringVector) {
-  std::vector<float> floatVector;
-
-  if (stringVector.empty())
-    return floatVector;
-
-  // Avoids multiple allocations, thanks ChatGPT!
-  floatVector.reserve(stringVector.size());
-
-  for (auto &element : stringVector) {
-    try {
-      float value = std::stof(element);
-      floatVector.push_back(value);
-    } catch (std::exception &e) {
-      std::cerr << "Error in KistlerCSVFile::stringToFloatVector(): Cannot "
-                   "convert string to float. Seems like the data is corrupt."
-                << std::endl;
-      exit(EXIT_FAILURE); // TODO: proper error dialogs...
-    }
-  }
-
-  return floatVector;
-}
-
-// ____________________________________________________________________________
 std::unordered_map<std::string, std::vector<float>>
 KistlerCSVFile::getData(int startRow, int stopRow) const {
   // Check for invalid row indices.
@@ -274,6 +248,3 @@ KistlerCSVFile::getData(int startRow, int stopRow) const {
 
   return data;
 }
-
-// ____________________________________________________________________________
-void KistlerDatFile::validateFile() {}

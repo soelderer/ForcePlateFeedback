@@ -242,8 +242,8 @@ void ForcePlateFeedback::onStartButtonPressed(QString fileName,
   if (running_) {
     running_ = false;
     // Notify ConfigWindow, OutputWindow and DataModel about the stop.
-    qInfo() << "Stopping live view.";
     emit stopLiveView();
+    qInfo() << "Stopping live view.";
     return;
   }
 
@@ -261,7 +261,6 @@ void ForcePlateFeedback::onStartButtonPressed(QString fileName,
 
   // Notify ConfigWindow, OutputWindow and DataModel about the start.
   emit startLiveView(fileName_, timeframe_);
-
   qInfo() << "Starting live view.";
 }
 
@@ -282,6 +281,6 @@ void ForcePlateFeedback::onDataUpdated(BalanceParameters *balanceParameters) {
 
 // ____________________________________________________________________________
 void ForcePlateFeedback::onReachedEOF() {
-  dataModel_->stopProcessing();
-  // further stuff
+  emit stopLiveView();
+  qInfo() << "Stopping live view.";
 }

@@ -77,8 +77,7 @@ void BalanceParameters::preprocess() { data_ = rawData_; }
 void BalanceParameters::calculateParameters() {
   calculateMeanForceX();
   calculateMeanForceY();
-  calculateSwayVariabilityX();
-  calculateSwayVariabilityY();
+  // ...
 }
 
 // ____________________________________________________________________________

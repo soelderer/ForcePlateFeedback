@@ -1,14 +1,14 @@
 // Copyright 2024
 // Author: Paul Soelder <p.soelder@mailbox.org>
 
+#pragma once
+
 #include <fstream>
 #include <gtest/gtest.h>
 #include <map>
 #include <string>
 #include <unistd.h>
 #include <vector>
-
-#pragma once
 
 #include "./DataModel.h"
 #include <QtCharts/QBarCategoryAxis>
@@ -38,8 +38,6 @@ public:
   OutputWindow();
   ~OutputWindow() {}
 
-  void preparePlot(BalanceParameters *balanceParameters) {}
-  void refresh() {}
   void show();
   void hide();
 
@@ -86,7 +84,6 @@ public:
 
   ~ConfigWindow() {}
 
-  void refresh();
   void show();
   void hide();
 

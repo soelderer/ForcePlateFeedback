@@ -49,15 +49,6 @@ public:
   virtual std::unordered_map<std::string, std::vector<float>>
   getData(int startRow = -1, int stopRow = -1) const = 0;
 
-  // Method to extract raw data from the file by absolute timestamps.
-  // Use negative timestamps for retreiving all data, e.g. startTime = -1
-  // and stopTime = -1 will return all data; startTime = 0.04, stopTime = -1
-  // will return data from 40ms until the end of the file.
-  // It returns a map, so that the data columns can be accessed by their
-  // column names, e.g. "Fx"
-  virtual std::unordered_map<std::string, std::vector<float>>
-  getData(float startTime = -1, float stopTime = -1) const = 0;
-
   std::string getFilename() const { return fileName_; }
 
   bool isValid() const { return isValid_; }
@@ -91,18 +82,11 @@ public:
   std::unordered_map<std::string, std::vector<float>>
   getData(int startRow = -1, int stopRow = -1) const override;
 
-  std::unordered_map<std::string, std::vector<float>>
-  getData(float startTime = -1, float stopTime = -1) const override {}
-
   // Parse the CSV header to get metadata like sampling rate and column names.
   void parseMetaData();
 
   // Slice a single CSV row into separate strings by a given delimiter.
   static std::vector<std::string> sliceRow(std::string line_, char delimiter);
-
-  // Convert a vector of strings into a vector of floats.
-  static std::vector<float>
-  stringToFloatVector(std::vector<std::string> stringVector);
 
   FRIEND_TEST(KistlerFileTest, KistlerCSVFileConstructor);
   FRIEND_TEST(KistlerCSVFileTest, parseMetaData);
@@ -116,20 +100,17 @@ private:
 };
 
 // Subclass to represent binary .dat files with raw data.
-class KistlerDatFile : public KistlerFile {
-public:
-  // .dat-specific implementation of the constructor.
-  KistlerDatFile() {}
-  KistlerDatFile(const std::string &fileName) : KistlerFile(fileName) {}
-  ~KistlerDatFile() {}
-
-  // .dat-specific implementations of sanity checks for the file.
-  void validateFile() override;
-
-  // .dat-specific implementations of getData.
-  std::unordered_map<std::string, std::vector<float>>
-  getData(int startRow = -1, int stopRow = -1) const override {}
-
-  std::unordered_map<std::string, std::vector<float>>
-  getData(float startTime = -1, float stopTime = -1) const override {}
-};
+// class KistlerDatFile : public KistlerFile {
+// public:
+//   // .dat-specific implementation of the constructor.
+//   KistlerDatFile() {}
+//   KistlerDatFile(const std::string &fileName) : KistlerFile(fileName) {}
+//   ~KistlerDatFile() {}
+//
+//   // .dat-specific implementations of sanity checks for the file.
+//   void validateFile() override;
+//
+//   // .dat-specific implementations of getData.
+//   std::unordered_map<std::string, std::vector<float>>
+//   getData(int startRow = -1, int stopRow = -1) const override {}
+// };
