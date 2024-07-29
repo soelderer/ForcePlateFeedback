@@ -24,6 +24,7 @@
 #include <QtWidgets/QLabel>
 #include <QtWidgets/QLineEdit>
 #include <QtWidgets/QMainWindow>
+#include <QtWidgets/QMessageBox>
 #include <QtWidgets/QPushButton>
 
 // Maximum timeframe in miliseconds over which the parameters may be calculated.
@@ -37,6 +38,11 @@ class OutputWindow : public QWidget {
 public:
   OutputWindow();
   ~OutputWindow() {}
+  // No custom destructors needed, as the Qt object tree takes care of
+  // destruction, https://stackoverflow.com/a/37056051
+
+  // Qt objects are not supposed to be copied, so no copy constructor and
+  // assignment operator implemented. See https://stackoverflow.com/a/19092698
 
   void show();
   void hide();
@@ -81,8 +87,12 @@ class ConfigWindow : public QWidget {
 
 public:
   ConfigWindow();
-
   ~ConfigWindow() {}
+  // No custom destructors needed, as the Qt object tree takes care of
+  // destruction, https://stackoverflow.com/a/37056051
+
+  // Qt objects are not supposed to be copied, so no copy constructor and
+  // assignment operator implemented. See https://stackoverflow.com/a/19092698
 
   void show();
   void hide();
@@ -118,8 +128,12 @@ class ForcePlateFeedback : public QWidget {
 
 public:
   ForcePlateFeedback();
+  ~ForcePlateFeedback() {}
+  // No custom destructors needed, as the Qt object tree takes care of
+  // destruction, https://stackoverflow.com/a/37056051
 
-  ~ForcePlateFeedback();
+  // Qt objects are not supposed to be copied, so no copy constructor and
+  // assignment operator implemented. See https://stackoverflow.com/a/19092698
 
   // Shows the config window.
   void showConfigWindow();
@@ -141,7 +155,8 @@ private:
 
   // Sanity checks / validation of config options. Returns true if the config
   // options are valid.
-  bool validateConfigOptions(std::string fileName, float timeframe);
+  static bool validateConfigOptions(std::string fileName, float timeframe);
+  FRIEND_TEST(ForcePlateFeedbackTest, validateConfigOptions);
 
   // Start and stop the live view. Takes care of emitting the right signals,
   // changing state variables etc.
@@ -158,6 +173,5 @@ private slots:
   void onStartButtonPressed(QString fileName, QString timeframe);
 
 public slots:
-  void onDataUpdated(BalanceParameters *balanceParameters);
   void onReachedEOF();
 };

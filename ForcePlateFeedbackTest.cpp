@@ -164,191 +164,193 @@ TEST(KistlerCSVFileTest, parseMetaData) {
 // ____________________________________________________________________________
 TEST(KistlerCSVFileTest, getDataByIndices) {
   KistlerCSVFile kistlerFile("example_data/KistlerCSV_example.txt");
-  std::unordered_map<std::string, std::vector<float>> data;
+  std::cout << "here" << std::endl;
 
   // Get the first row.
-  data = kistlerFile.getData(0, 0);
-  ASSERT_EQ(data.size(), 9);
-  ASSERT_EQ(data["abs time (s)"].size(), 1);
-  ASSERT_EQ(data["Fx"].size(), 1);
-  ASSERT_EQ(data["Fy"].size(), 1);
-  ASSERT_EQ(data["Fz"].size(), 1);
-  ASSERT_EQ(data["Mx"].size(), 1);
-  ASSERT_EQ(data["My"].size(), 1);
-  ASSERT_EQ(data["Mz"].size(), 1);
-  ASSERT_EQ(data["Ax"].size(), 1);
-  ASSERT_EQ(data["Ay"].size(), 1);
-  ASSERT_FLOAT_EQ(data["abs time (s)"][0], 0);
-  ASSERT_FLOAT_EQ(data["Fx"][0], 0.145133);
-  ASSERT_FLOAT_EQ(data["Fy"][0], -0.010285);
-  ASSERT_FLOAT_EQ(data["Fz"][0], -0.126362);
-  ASSERT_FLOAT_EQ(data["Mx"][0], -0.362161);
-  ASSERT_FLOAT_EQ(data["My"][0], 0.150046);
-  ASSERT_FLOAT_EQ(data["Mz"][0], 0.001693);
-  ASSERT_FLOAT_EQ(data["Ax"][0], 0);
-  ASSERT_FLOAT_EQ(data["Ay"][0], 0);
+  auto data = kistlerFile.getData(0, 0);
+  std::cout << "there" << std::endl;
+  ASSERT_EQ(data->size(), 9);
+  ASSERT_EQ(data->at("abs time (s)").size(), 1);
+  ASSERT_EQ(data->at("Fx").size(), 1);
+  ASSERT_EQ(data->at("Fy").size(), 1);
+  ASSERT_EQ(data->at("Fz").size(), 1);
+  ASSERT_EQ(data->at("Mx").size(), 1);
+  ASSERT_EQ(data->at("My").size(), 1);
+  ASSERT_EQ(data->at("Mz").size(), 1);
+  ASSERT_EQ(data->at("Ax").size(), 1);
+  ASSERT_EQ(data->at("Ay").size(), 1);
+  ASSERT_FLOAT_EQ(data->at("abs time (s)")[0], 0);
+  ASSERT_FLOAT_EQ(data->at("Fx")[0], 0.145133);
+  ASSERT_FLOAT_EQ(data->at("Fy")[0], -0.010285);
+  ASSERT_FLOAT_EQ(data->at("Fz")[0], -0.126362);
+  ASSERT_FLOAT_EQ(data->at("Mx")[0], -0.362161);
+  ASSERT_FLOAT_EQ(data->at("My")[0], 0.150046);
+  ASSERT_FLOAT_EQ(data->at("Mz")[0], 0.001693);
+  ASSERT_FLOAT_EQ(data->at("Ax")[0], 0);
+  ASSERT_FLOAT_EQ(data->at("Ay")[0], 0);
 
   // Get rows 9 to 12.
   data = kistlerFile.getData(8, 11);
-  ASSERT_EQ(data.size(), 9);
-  ASSERT_EQ(data["abs time (s)"].size(), 4);
-  ASSERT_EQ(data["Fx"].size(), 4);
-  ASSERT_EQ(data["Fy"].size(), 4);
-  ASSERT_EQ(data["Fz"].size(), 4);
-  ASSERT_EQ(data["Mx"].size(), 4);
-  ASSERT_EQ(data["My"].size(), 4);
-  ASSERT_EQ(data["Mz"].size(), 4);
-  ASSERT_EQ(data["Ax"].size(), 4);
-  ASSERT_EQ(data["Ay"].size(), 4);
+  ASSERT_EQ(data->size(), 9);
+  ASSERT_EQ(data->at("abs time (s)").size(), 4);
+  ASSERT_EQ(data->at("Fx").size(), 4);
+  ASSERT_EQ(data->at("Fy").size(), 4);
+  ASSERT_EQ(data->at("Fz").size(), 4);
+  ASSERT_EQ(data->at("Mx").size(), 4);
+  ASSERT_EQ(data->at("My").size(), 4);
+  ASSERT_EQ(data->at("Mz").size(), 4);
+  ASSERT_EQ(data->at("Ax").size(), 4);
+  ASSERT_EQ(data->at("Ay").size(), 4);
   // Row 9
-  ASSERT_FLOAT_EQ(data["abs time (s)"][0], 0.008);
-  ASSERT_FLOAT_EQ(data["Fx"][0], -0.011207);
-  ASSERT_FLOAT_EQ(data["Fy"][0], -0.205451);
-  ASSERT_FLOAT_EQ(data["Fz"][0], -1.102404);
-  ASSERT_FLOAT_EQ(data["Mx"][0], 0.238696);
-  ASSERT_FLOAT_EQ(data["My"][0], 0.348605);
-  ASSERT_FLOAT_EQ(data["Mz"][0], -0.067442);
-  ASSERT_FLOAT_EQ(data["Ax"][0], 0);
-  ASSERT_FLOAT_EQ(data["Ay"][0], 0);
+  ASSERT_FLOAT_EQ(data->at("abs time (s)")[0], 0.008);
+  ASSERT_FLOAT_EQ(data->at("Fx")[0], -0.011207);
+  ASSERT_FLOAT_EQ(data->at("Fy")[0], -0.205451);
+  ASSERT_FLOAT_EQ(data->at("Fz")[0], -1.102404);
+  ASSERT_FLOAT_EQ(data->at("Mx")[0], 0.238696);
+  ASSERT_FLOAT_EQ(data->at("My")[0], 0.348605);
+  ASSERT_FLOAT_EQ(data->at("Mz")[0], -0.067442);
+  ASSERT_FLOAT_EQ(data->at("Ax")[0], 0);
+  ASSERT_FLOAT_EQ(data->at("Ay")[0], 0);
   // Row 10
-  ASSERT_FLOAT_EQ(data["abs time (s)"][1], 0.009);
-  ASSERT_FLOAT_EQ(data["Fx"][1], 0.145173);
-  ASSERT_FLOAT_EQ(data["Fy"][1], -0.049630);
-  ASSERT_FLOAT_EQ(data["Fz"][1], -1.428445);
-  ASSERT_FLOAT_EQ(data["Mx"][1], 0.147898);
-  ASSERT_FLOAT_EQ(data["My"][1], -0.124266);
-  ASSERT_FLOAT_EQ(data["Mz"][1], 0.022363);
-  ASSERT_FLOAT_EQ(data["Ax"][1], 0);
-  ASSERT_FLOAT_EQ(data["Ay"][1], 0);
+  ASSERT_FLOAT_EQ(data->at("abs time (s)")[1], 0.009);
+  ASSERT_FLOAT_EQ(data->at("Fx")[1], 0.145173);
+  ASSERT_FLOAT_EQ(data->at("Fy")[1], -0.049630);
+  ASSERT_FLOAT_EQ(data->at("Fz")[1], -1.428445);
+  ASSERT_FLOAT_EQ(data->at("Mx")[1], 0.147898);
+  ASSERT_FLOAT_EQ(data->at("My")[1], -0.124266);
+  ASSERT_FLOAT_EQ(data->at("Mz")[1], 0.022363);
+  ASSERT_FLOAT_EQ(data->at("Ax")[1], 0);
+  ASSERT_FLOAT_EQ(data->at("Ay")[1], 0);
   // Row 11
-  ASSERT_FLOAT_EQ(data["abs time (s)"][2], 0.01);
-  ASSERT_FLOAT_EQ(data["Fx"][2], -0.050342);
-  ASSERT_FLOAT_EQ(data["Fy"][2], -0.088255);
-  ASSERT_FLOAT_EQ(data["Fz"][2], -0.288165);
-  ASSERT_FLOAT_EQ(data["Mx"][2], 0.192003);
-  ASSERT_FLOAT_EQ(data["My"][2], 0.039073);
-  ASSERT_FLOAT_EQ(data["Mz"][2], -0.065504);
-  ASSERT_FLOAT_EQ(data["Ax"][2], 0);
-  ASSERT_FLOAT_EQ(data["Ay"][2], 0);
+  ASSERT_FLOAT_EQ(data->at("abs time (s)")[2], 0.01);
+  ASSERT_FLOAT_EQ(data->at("Fx")[2], -0.050342);
+  ASSERT_FLOAT_EQ(data->at("Fy")[2], -0.088255);
+  ASSERT_FLOAT_EQ(data->at("Fz")[2], -0.288165);
+  ASSERT_FLOAT_EQ(data->at("Mx")[2], 0.192003);
+  ASSERT_FLOAT_EQ(data->at("My")[2], 0.039073);
+  ASSERT_FLOAT_EQ(data->at("Mz")[2], -0.065504);
+  ASSERT_FLOAT_EQ(data->at("Ax")[2], 0);
+  ASSERT_FLOAT_EQ(data->at("Ay")[2], 0);
   // Row 12
-  ASSERT_FLOAT_EQ(data["abs time (s)"][3], 0.011);
-  ASSERT_FLOAT_EQ(data["Fx"][3], 0.066863);
-  ASSERT_FLOAT_EQ(data["Fy"][3], -0.010165);
-  ASSERT_FLOAT_EQ(data["Fz"][3], 0.364267);
-  ASSERT_FLOAT_EQ(data["Mx"][3], 0.019169);
-  ASSERT_FLOAT_EQ(data["My"][3], 0.249212);
-  ASSERT_FLOAT_EQ(data["Mz"][3], 0.005645);
-  ASSERT_FLOAT_EQ(data["Ax"][3], -0.684146);
-  ASSERT_FLOAT_EQ(data["Ay"][3], 0.052623);
+  ASSERT_FLOAT_EQ(data->at("abs time (s)")[3], 0.011);
+  ASSERT_FLOAT_EQ(data->at("Fx")[3], 0.066863);
+  ASSERT_FLOAT_EQ(data->at("Fy")[3], -0.010165);
+  ASSERT_FLOAT_EQ(data->at("Fz")[3], 0.364267);
+  ASSERT_FLOAT_EQ(data->at("Mx")[3], 0.019169);
+  ASSERT_FLOAT_EQ(data->at("My")[3], 0.249212);
+  ASSERT_FLOAT_EQ(data->at("Mz")[3], 0.005645);
+  ASSERT_FLOAT_EQ(data->at("Ax")[3], -0.684146);
+  ASSERT_FLOAT_EQ(data->at("Ay")[3], 0.052623);
 
   // Get rows from the beginning to line 2.
   data = kistlerFile.getData(-1, 1);
-  ASSERT_EQ(data.size(), 9);
-  ASSERT_EQ(data["abs time (s)"].size(), 2);
-  ASSERT_EQ(data["Fx"].size(), 2);
-  ASSERT_EQ(data["Fy"].size(), 2);
-  ASSERT_EQ(data["Fz"].size(), 2);
-  ASSERT_EQ(data["Mx"].size(), 2);
-  ASSERT_EQ(data["My"].size(), 2);
-  ASSERT_EQ(data["Mz"].size(), 2);
-  ASSERT_EQ(data["Ax"].size(), 2);
-  ASSERT_EQ(data["Ay"].size(), 2);
+  ASSERT_EQ(data->size(), 9);
+  ASSERT_EQ(data->at("abs time (s)").size(), 2);
+  ASSERT_EQ(data->at("Fx").size(), 2);
+  ASSERT_EQ(data->at("Fy").size(), 2);
+  ASSERT_EQ(data->at("Fz").size(), 2);
+  ASSERT_EQ(data->at("Mx").size(), 2);
+  ASSERT_EQ(data->at("My").size(), 2);
+  ASSERT_EQ(data->at("Mz").size(), 2);
+  ASSERT_EQ(data->at("Ax").size(), 2);
+  ASSERT_EQ(data->at("Ay").size(), 2);
   // Row 1.
-  ASSERT_FLOAT_EQ(data["abs time (s)"][0], 0);
-  ASSERT_FLOAT_EQ(data["Fx"][0], 0.145133);
-  ASSERT_FLOAT_EQ(data["Fy"][0], -0.010285);
-  ASSERT_FLOAT_EQ(data["Fz"][0], -0.126362);
-  ASSERT_FLOAT_EQ(data["Mx"][0], -0.362161);
-  ASSERT_FLOAT_EQ(data["My"][0], 0.150046);
-  ASSERT_FLOAT_EQ(data["Mz"][0], 0.001693);
-  ASSERT_FLOAT_EQ(data["Ax"][0], 0);
-  ASSERT_FLOAT_EQ(data["Ay"][0], 0);
+  ASSERT_FLOAT_EQ(data->at("abs time (s)")[0], 0);
+  ASSERT_FLOAT_EQ(data->at("Fx")[0], 0.145133);
+  ASSERT_FLOAT_EQ(data->at("Fy")[0], -0.010285);
+  ASSERT_FLOAT_EQ(data->at("Fz")[0], -0.126362);
+  ASSERT_FLOAT_EQ(data->at("Mx")[0], -0.362161);
+  ASSERT_FLOAT_EQ(data->at("My")[0], 0.150046);
+  ASSERT_FLOAT_EQ(data->at("Mz")[0], 0.001693);
+  ASSERT_FLOAT_EQ(data->at("Ax")[0], 0);
+  ASSERT_FLOAT_EQ(data->at("Ay")[0], 0);
   // Row 2.
-  ASSERT_FLOAT_EQ(data["abs time (s)"][1], 0.001);
-  ASSERT_FLOAT_EQ(data["Fx"][1], -0.011368);
-  ASSERT_FLOAT_EQ(data["Fy"][1], -0.127600);
-  ASSERT_FLOAT_EQ(data["Fz"][1], -1.756052);
-  ASSERT_FLOAT_EQ(data["Mx"][1], -0.102902);
-  ASSERT_FLOAT_EQ(data["My"][1], -0.404231);
-  ASSERT_FLOAT_EQ(data["Mz"][1], 0.046690);
-  ASSERT_FLOAT_EQ(data["Ax"][1], 0);
-  ASSERT_FLOAT_EQ(data["Ay"][1], 0);
+  ASSERT_FLOAT_EQ(data->at("abs time (s)")[1], 0.001);
+  ASSERT_FLOAT_EQ(data->at("Fx")[1], -0.011368);
+  ASSERT_FLOAT_EQ(data->at("Fy")[1], -0.127600);
+  ASSERT_FLOAT_EQ(data->at("Fz")[1], -1.756052);
+  ASSERT_FLOAT_EQ(data->at("Mx")[1], -0.102902);
+  ASSERT_FLOAT_EQ(data->at("My")[1], -0.404231);
+  ASSERT_FLOAT_EQ(data->at("Mz")[1], 0.046690);
+  ASSERT_FLOAT_EQ(data->at("Ax")[1], 0);
+  ASSERT_FLOAT_EQ(data->at("Ay")[1], 0);
 
   // Get rows from line 30 to EOF.
   data = kistlerFile.getData(29, -1);
-  ASSERT_EQ(data.size(), 9);
-  ASSERT_EQ(data["abs time (s)"].size(), 2);
-  ASSERT_EQ(data["Fx"].size(), 2);
-  ASSERT_EQ(data["Fy"].size(), 2);
-  ASSERT_EQ(data["Fz"].size(), 2);
-  ASSERT_EQ(data["Mx"].size(), 2);
-  ASSERT_EQ(data["My"].size(), 2);
-  ASSERT_EQ(data["Mz"].size(), 2);
-  ASSERT_EQ(data["Ax"].size(), 2);
-  ASSERT_EQ(data["Ay"].size(), 2);
+  ASSERT_EQ(data->size(), 9);
+  ASSERT_EQ(data->at("abs time (s)").size(), 2);
+  ASSERT_EQ(data->at("Fx").size(), 2);
+  ASSERT_EQ(data->at("Fy").size(), 2);
+  ASSERT_EQ(data->at("Fz").size(), 2);
+  ASSERT_EQ(data->at("Mx").size(), 2);
+  ASSERT_EQ(data->at("My").size(), 2);
+  ASSERT_EQ(data->at("Mz").size(), 2);
+  ASSERT_EQ(data->at("Ax").size(), 2);
+  ASSERT_EQ(data->at("Ay").size(), 2);
   // Row 30.
-  ASSERT_FLOAT_EQ(data["abs time (s)"][0], 0.029);
-  ASSERT_FLOAT_EQ(data["Fx"][0], -0.050422);
-  ASSERT_FLOAT_EQ(data["Fy"][0], 0.145775);
-  ASSERT_FLOAT_EQ(data["Fz"][0], 0.852810);
-  ASSERT_FLOAT_EQ(data["Mx"][0], -0.029384);
-  ASSERT_FLOAT_EQ(data["My"][0], 0.141809);
-  ASSERT_FLOAT_EQ(data["Mz"][0], 0.007898);
-  ASSERT_FLOAT_EQ(data["Ax"][0], -0.166285);
-  ASSERT_FLOAT_EQ(data["Ay"][0], -0.034456);
+  ASSERT_FLOAT_EQ(data->at("abs time (s)")[0], 0.029);
+  ASSERT_FLOAT_EQ(data->at("Fx")[0], -0.050422);
+  ASSERT_FLOAT_EQ(data->at("Fy")[0], 0.145775);
+  ASSERT_FLOAT_EQ(data->at("Fz")[0], 0.852810);
+  ASSERT_FLOAT_EQ(data->at("Mx")[0], -0.029384);
+  ASSERT_FLOAT_EQ(data->at("My")[0], 0.141809);
+  ASSERT_FLOAT_EQ(data->at("Mz")[0], 0.007898);
+  ASSERT_FLOAT_EQ(data->at("Ax")[0], -0.166285);
+  ASSERT_FLOAT_EQ(data->at("Ay")[0], -0.034456);
   // Row 31.
-  ASSERT_FLOAT_EQ(data["abs time (s)"][1], 0.03);
-  ASSERT_FLOAT_EQ(data["Fx"][1], -0.011408);
-  ASSERT_FLOAT_EQ(data["Fy"][1], -0.205690);
-  ASSERT_FLOAT_EQ(data["Fz"][1], -0.125492);
-  ASSERT_FLOAT_EQ(data["Mx"][1], 0.069752);
-  ASSERT_FLOAT_EQ(data["My"][1], 0.006508);
-  ASSERT_FLOAT_EQ(data["Mz"][1], 0.067055);
-  ASSERT_FLOAT_EQ(data["Ax"][1], 0);
-  ASSERT_FLOAT_EQ(data["Ay"][1], 0);
+  ASSERT_FLOAT_EQ(data->at("abs time (s)")[1], 0.03);
+  ASSERT_FLOAT_EQ(data->at("Fx")[1], -0.011408);
+  ASSERT_FLOAT_EQ(data->at("Fy")[1], -0.205690);
+  ASSERT_FLOAT_EQ(data->at("Fz")[1], -0.125492);
+  ASSERT_FLOAT_EQ(data->at("Mx")[1], 0.069752);
+  ASSERT_FLOAT_EQ(data->at("My")[1], 0.006508);
+  ASSERT_FLOAT_EQ(data->at("Mz")[1], 0.067055);
+  ASSERT_FLOAT_EQ(data->at("Ax")[1], 0);
+  ASSERT_FLOAT_EQ(data->at("Ay")[1], 0);
 
   // Read a whole file.
   kistlerFile = KistlerCSVFile("example_data/KistlerCSV_stub.txt");
   data = kistlerFile.getData(-1, -1);
-  ASSERT_EQ(data.size(), 9);
-  ASSERT_EQ(data["abs time (s)"].size(), 2);
-  ASSERT_EQ(data["Fx"].size(), 2);
-  ASSERT_EQ(data["Fy"].size(), 2);
-  ASSERT_EQ(data["Fz"].size(), 2);
-  ASSERT_EQ(data["Mx"].size(), 2);
-  ASSERT_EQ(data["My"].size(), 2);
-  ASSERT_EQ(data["Mz"].size(), 2);
-  ASSERT_EQ(data["Ax"].size(), 2);
-  ASSERT_EQ(data["Ay"].size(), 2);
+  ASSERT_EQ(data->size(), 9);
+  ASSERT_EQ(data->at("abs time (s)").size(), 2);
+  ASSERT_EQ(data->at("Fx").size(), 2);
+  ASSERT_EQ(data->at("Fy").size(), 2);
+  ASSERT_EQ(data->at("Fz").size(), 2);
+  ASSERT_EQ(data->at("Mx").size(), 2);
+  ASSERT_EQ(data->at("My").size(), 2);
+  ASSERT_EQ(data->at("Mz").size(), 2);
+  ASSERT_EQ(data->at("Ax").size(), 2);
+  ASSERT_EQ(data->at("Ay").size(), 2);
   // Row 30.
-  ASSERT_FLOAT_EQ(data["abs time (s)"][0], 0.029);
-  ASSERT_FLOAT_EQ(data["Fx"][0], -0.050422);
-  ASSERT_FLOAT_EQ(data["Fy"][0], 0.145775);
-  ASSERT_FLOAT_EQ(data["Fz"][0], 0.852810);
-  ASSERT_FLOAT_EQ(data["Mx"][0], -0.029384);
-  ASSERT_FLOAT_EQ(data["My"][0], 0.141809);
-  ASSERT_FLOAT_EQ(data["Mz"][0], 0.007898);
-  ASSERT_FLOAT_EQ(data["Ax"][0], -0.166285);
-  ASSERT_FLOAT_EQ(data["Ay"][0], -0.034456);
+  ASSERT_FLOAT_EQ(data->at("abs time (s)")[0], 0.029);
+  ASSERT_FLOAT_EQ(data->at("Fx")[0], -0.050422);
+  ASSERT_FLOAT_EQ(data->at("Fy")[0], 0.145775);
+  ASSERT_FLOAT_EQ(data->at("Fz")[0], 0.852810);
+  ASSERT_FLOAT_EQ(data->at("Mx")[0], -0.029384);
+  ASSERT_FLOAT_EQ(data->at("My")[0], 0.141809);
+  ASSERT_FLOAT_EQ(data->at("Mz")[0], 0.007898);
+  ASSERT_FLOAT_EQ(data->at("Ax")[0], -0.166285);
+  ASSERT_FLOAT_EQ(data->at("Ay")[0], -0.034456);
   // Row 31.
-  ASSERT_FLOAT_EQ(data["abs time (s)"][1], 0.03);
-  ASSERT_FLOAT_EQ(data["Fx"][1], -0.011408);
-  ASSERT_FLOAT_EQ(data["Fy"][1], -0.205690);
-  ASSERT_FLOAT_EQ(data["Fz"][1], -0.125492);
-  ASSERT_FLOAT_EQ(data["Mx"][1], 0.069752);
-  ASSERT_FLOAT_EQ(data["My"][1], 0.006508);
-  ASSERT_FLOAT_EQ(data["Mz"][1], 0.067055);
-  ASSERT_FLOAT_EQ(data["Ax"][1], 0);
-  ASSERT_FLOAT_EQ(data["Ay"][1], 0);
+  ASSERT_FLOAT_EQ(data->at("abs time (s)")[1], 0.03);
+  ASSERT_FLOAT_EQ(data->at("Fx")[1], -0.011408);
+  ASSERT_FLOAT_EQ(data->at("Fy")[1], -0.205690);
+  ASSERT_FLOAT_EQ(data->at("Fz")[1], -0.125492);
+  ASSERT_FLOAT_EQ(data->at("Mx")[1], 0.069752);
+  ASSERT_FLOAT_EQ(data->at("My")[1], 0.006508);
+  ASSERT_FLOAT_EQ(data->at("Mz")[1], 0.067055);
+  ASSERT_FLOAT_EQ(data->at("Ax")[1], 0);
+  ASSERT_FLOAT_EQ(data->at("Ay")[1], 0);
 }
 
 // ____________________________________________________________________________
 TEST(BalanceParametersTest, calculateMeanForceX) {
-  std::unordered_map<std::string, std::vector<float>> data;
+  auto data =
+      std::make_shared<std::unordered_map<std::string, std::vector<float>>>();
 
   // Empty vector should yield an average of 0.
-  data["Fx"];
-  BalanceParameters balanceParameters(&data);
+  (*data)["Fx"];
+  BalanceParameters balanceParameters(data);
   // Constructor already calls calculateParameters(), so let's reset it and
   // call it again manually.
   balanceParameters.meanForceX_ = 0;
@@ -356,41 +358,44 @@ TEST(BalanceParametersTest, calculateMeanForceX) {
   ASSERT_FLOAT_EQ(balanceParameters.meanForceX_, 0);
 
   // Some trivial example.
-  data = std::unordered_map<std::string, std::vector<float>>();
-  data["Fx"].push_back(1);
-  data["Fx"].push_back(2);
-  data["Fx"].push_back(3);
+  data =
+      std::make_shared<std::unordered_map<std::string, std::vector<float>>>();
+  (*data)["Fx"].push_back(1);
+  (*data)["Fx"].push_back(2);
+  (*data)["Fx"].push_back(3);
 
-  balanceParameters = BalanceParameters(&data);
+  balanceParameters = BalanceParameters(data);
   balanceParameters.meanForceX_ = 0;
   balanceParameters.calculateMeanForceX();
   ASSERT_FLOAT_EQ(balanceParameters.meanForceX_, 2);
 
   // Negatives.
-  data = std::unordered_map<std::string, std::vector<float>>();
-  data["Fx"].push_back(-1);
-  data["Fx"].push_back(2);
-  data["Fx"].push_back(3);
+  data =
+      std::make_shared<std::unordered_map<std::string, std::vector<float>>>();
+  (*data)["Fx"].push_back(-1);
+  (*data)["Fx"].push_back(2);
+  (*data)["Fx"].push_back(3);
 
-  balanceParameters = BalanceParameters(&data);
+  balanceParameters = BalanceParameters(data);
   balanceParameters.meanForceX_ = 0;
   balanceParameters.calculateMeanForceX();
   ASSERT_FLOAT_EQ(balanceParameters.meanForceX_, 1.0 * 4 / 3);
 
   // More realistic data.
-  data = std::unordered_map<std::string, std::vector<float>>();
-  data["Fx"].push_back(0.145133);
-  data["Fx"].push_back(-0.011368);
-  data["Fx"].push_back(0.027848);
-  data["Fx"].push_back(0.145133);
-  data["Fx"].push_back(-0.011408);
-  data["Fx"].push_back(0.066983);
-  data["Fx"].push_back(-0.050422);
-  data["Fx"].push_back(-0.128612);
-  data["Fx"].push_back(-0.011207);
-  data["Fx"].push_back(0.145173);
+  data =
+      std::make_shared<std::unordered_map<std::string, std::vector<float>>>();
+  (*data)["Fx"].push_back(0.145133);
+  (*data)["Fx"].push_back(-0.011368);
+  (*data)["Fx"].push_back(0.027848);
+  (*data)["Fx"].push_back(0.145133);
+  (*data)["Fx"].push_back(-0.011408);
+  (*data)["Fx"].push_back(0.066983);
+  (*data)["Fx"].push_back(-0.050422);
+  (*data)["Fx"].push_back(-0.128612);
+  (*data)["Fx"].push_back(-0.011207);
+  (*data)["Fx"].push_back(0.145173);
 
-  balanceParameters = BalanceParameters(&data);
+  balanceParameters = BalanceParameters(data);
   balanceParameters.meanForceX_ = 0;
   balanceParameters.calculateMeanForceX();
   ASSERT_FLOAT_EQ(balanceParameters.meanForceX_, 0.0317253);
@@ -398,11 +403,12 @@ TEST(BalanceParametersTest, calculateMeanForceX) {
 
 // ____________________________________________________________________________
 TEST(BalanceParametersTest, calculateMeanForceY) {
-  std::unordered_map<std::string, std::vector<float>> data;
+  auto data =
+      std::make_shared<std::unordered_map<std::string, std::vector<float>>>();
 
   // Empty vector should yield an average of 0.
-  data["Fy"];
-  BalanceParameters balanceParameters(&data);
+  (*data)["Fy"];
+  BalanceParameters balanceParameters(data);
   // Constructor already calls calculateParameters(), so let's reset it and
   // call it again manually.
   balanceParameters.meanForceY_ = 0;
@@ -410,49 +416,67 @@ TEST(BalanceParametersTest, calculateMeanForceY) {
   ASSERT_FLOAT_EQ(balanceParameters.meanForceY_, 0);
 
   // Some trivial example.
-  data = std::unordered_map<std::string, std::vector<float>>();
-  data["Fy"].push_back(1);
-  data["Fy"].push_back(2);
-  data["Fy"].push_back(3);
+  data =
+      std::make_shared<std::unordered_map<std::string, std::vector<float>>>();
+  (*data)["Fy"].push_back(1);
+  (*data)["Fy"].push_back(2);
+  (*data)["Fy"].push_back(3);
 
-  balanceParameters = BalanceParameters(&data);
+  balanceParameters = BalanceParameters(data);
   balanceParameters.meanForceY_ = 0;
   balanceParameters.calculateMeanForceY();
   ASSERT_FLOAT_EQ(balanceParameters.meanForceY_, 2);
 
   // Negatives.
-  data = std::unordered_map<std::string, std::vector<float>>();
-  data["Fy"].push_back(-1);
-  data["Fy"].push_back(2);
-  data["Fy"].push_back(3);
+  data =
+      std::make_shared<std::unordered_map<std::string, std::vector<float>>>();
+  (*data)["Fy"].push_back(-1);
+  (*data)["Fy"].push_back(2);
+  (*data)["Fy"].push_back(3);
 
-  balanceParameters = BalanceParameters(&data);
+  balanceParameters = BalanceParameters(data);
   balanceParameters.meanForceY_ = 0;
   balanceParameters.calculateMeanForceY();
   ASSERT_FLOAT_EQ(balanceParameters.meanForceY_, 1.0 * 4 / 3);
 
   // More realistic data.
-  data = std::unordered_map<std::string, std::vector<float>>();
-  data["Fy"].push_back(0.145133);
-  data["Fy"].push_back(-0.011368);
-  data["Fy"].push_back(0.027848);
-  data["Fy"].push_back(0.145133);
-  data["Fy"].push_back(-0.011408);
-  data["Fy"].push_back(0.066983);
-  data["Fy"].push_back(-0.050422);
-  data["Fy"].push_back(-0.128612);
-  data["Fy"].push_back(-0.011207);
-  data["Fy"].push_back(0.145173);
+  data =
+      std::make_shared<std::unordered_map<std::string, std::vector<float>>>();
+  (*data)["Fy"].push_back(0.145133);
+  (*data)["Fy"].push_back(-0.011368);
+  (*data)["Fy"].push_back(0.027848);
+  (*data)["Fy"].push_back(0.145133);
+  (*data)["Fy"].push_back(-0.011408);
+  (*data)["Fy"].push_back(0.066983);
+  (*data)["Fy"].push_back(-0.050422);
+  (*data)["Fy"].push_back(-0.128612);
+  (*data)["Fy"].push_back(-0.011207);
+  (*data)["Fy"].push_back(0.145173);
 
-  balanceParameters = BalanceParameters(&data);
+  balanceParameters = BalanceParameters(data);
   balanceParameters.meanForceY_ = 0;
   balanceParameters.calculateMeanForceY();
   ASSERT_FLOAT_EQ(balanceParameters.meanForceY_, 0.0317253);
 }
 
 // ____________________________________________________________________________
+TEST(ForcePlateFeedbackTest, validateConfigOptions) {
+  // Empty file name.
+  ASSERT_FALSE(ForcePlateFeedback::validateConfigOptions("", 50.0));
 
-// bool ForcePlateFeedback::validateConfigOptions()
+  // Negative timeframe
+  ASSERT_FALSE(
+      ForcePlateFeedback::validateConfigOptions("/tmp/file.txt", -50.0));
+
+  // Zero timeframe
+  ASSERT_FALSE(ForcePlateFeedback::validateConfigOptions("/tmp/file.txt", 0.0));
+
+  // Empty file name and zero timeframe.
+  ASSERT_FALSE(ForcePlateFeedback::validateConfigOptions("", 0.0));
+
+  // All good.
+  ASSERT_TRUE(ForcePlateFeedback::validateConfigOptions("/tmp/file.txt", 50.0));
+}
 
 // ____________________________________________________________________________
 

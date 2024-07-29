@@ -31,14 +31,18 @@
 class BalanceParameters {
 public:
   // Constructor with data provided.
-  BalanceParameters(std::unordered_map<std::string, std::vector<float>> *data);
+  BalanceParameters(
+      std::shared_ptr<std::unordered_map<std::string, std::vector<float>>>
+          data);
 
   // Default constructor.
   BalanceParameters();
-  ~BalanceParameters() {}
+  ~BalanceParameters();
 
   // Re-calculate parameters with given data.
-  void update(std::unordered_map<std::string, std::vector<float>> *data);
+  void
+  update(std::shared_ptr<std::unordered_map<std::string, std::vector<float>>>
+             data);
 
   // Some sanity checks on the provided data.
   void validateData();
@@ -62,9 +66,9 @@ public:
 
 private:
   // The raw data.
-  std::unordered_map<std::string, std::vector<float>> *rawData_;
+  std::shared_ptr<std::unordered_map<std::string, std::vector<float>>> rawData_;
   // The preprocessed data.
-  std::unordered_map<std::string, std::vector<float>> *data_;
+  std::shared_ptr<std::unordered_map<std::string, std::vector<float>>> data_;
 
   // If the data (and thus the whole object) is valid.
   bool isValid_;
@@ -93,6 +97,8 @@ class DataModel : public QObject {
 public:
   DataModel();
   ~DataModel();
+  // Qt objects are not supposed to be copied, so no copy constructor and
+  // assignment operator implemented. See https://stackoverflow.com/a/19092698
 
 private:
   // State variables.

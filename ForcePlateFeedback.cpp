@@ -178,9 +178,6 @@ void OutputWindow::onDataUpdated(BalanceParameters *balanceParameters) {
 
   xChartView_->repaint();
   yChartView_->repaint();
-
-  // qDebug() << "OutputWindow: updated data with " << set_[0] << "and" <<
-  // set_[1];
 }
 
 // ____________________________________________________________________________
@@ -216,8 +213,6 @@ ForcePlateFeedback::ForcePlateFeedback() {
                    &DataModel::onStopProcessing);
 
   // Data updated.
-  QObject::connect(dataModel_, &DataModel::dataUpdated, this,
-                   &ForcePlateFeedback::onDataUpdated);
   QObject::connect(dataModel_, &DataModel::dataUpdated, outputWindow_,
                    &OutputWindow::onDataUpdated);
 
@@ -231,13 +226,6 @@ ForcePlateFeedback::ForcePlateFeedback() {
 }
 
 // ____________________________________________________________________________
-ForcePlateFeedback::~ForcePlateFeedback() {
-  delete configWindow_;
-  delete outputWindow_;
-  delete dataModel_;
-}
-
-// ____________________________________________________________________________
 void ForcePlateFeedback::showConfigWindow() { configWindow_->show(); }
 
 // ____________________________________________________________________________
@@ -246,8 +234,13 @@ void ForcePlateFeedback::startLiveView(QString fileName, QString timeframe) {
     float timeframeFloat = timeframe.toFloat();
 
     if (!validateConfigOptions(fileName.toStdString(), timeframeFloat)) {
-      // TODO: error message
+      QMessageBox invalidOptionsDialog;
+      invalidOptionsDialog.setText(
+          "Please select a file and enter a non-zero timeframe.");
+      invalidOptionsDialog.exec();
+      return;
     }
+
     fileName_ = fileName.toStdString();
     timeframe_ = timeframeFloat / 1000; // ms to s
 
@@ -281,16 +274,13 @@ void ForcePlateFeedback::onStartButtonPressed(QString fileName,
 // ____________________________________________________________________________
 bool ForcePlateFeedback::validateConfigOptions(std::string fileName,
                                                float timeframe) {
-  // Check if filename is not empty.
+  if (fileName.empty())
+    return false;
 
-  // Check if time frame is not zero.
+  if (timeframe <= 0)
+    return false;
 
   return true;
-}
-
-// ____________________________________________________________________________
-void ForcePlateFeedback::onDataUpdated(BalanceParameters *balanceParameters) {
-  // update OutputWindow
 }
 
 // ____________________________________________________________________________

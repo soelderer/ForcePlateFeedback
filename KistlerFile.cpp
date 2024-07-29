@@ -159,7 +159,7 @@ std::vector<std::string> KistlerCSVFile::sliceRow(std::string line,
 }
 
 // ____________________________________________________________________________
-std::unordered_map<std::string, std::vector<float>>
+std::shared_ptr<std::unordered_map<std::string, std::vector<float>>>
 KistlerCSVFile::getData(int startRow, int stopRow) const {
   // Check for invalid row indices.
   if (stopRow < startRow && stopRow != -1) {
@@ -170,10 +170,11 @@ KistlerCSVFile::getData(int startRow, int stopRow) const {
     exit(EXIT_FAILURE); // replace with exception handling
   }
 
-  std::unordered_map<std::string, std::vector<float>> data;
+  auto data =
+      std::make_shared<std::unordered_map<std::string, std::vector<float>>>();
 
   for (const auto &column : columnNames_) {
-    data[column] = std::vector<float>();
+    (*data)[column] = std::vector<float>();
   }
 
   std::ifstream file(fileName_);
@@ -208,7 +209,7 @@ KistlerCSVFile::getData(int startRow, int stopRow) const {
 
   // We can reserve some memory in advance to avoid multiple allocations.
   if (nRows != -1) {
-    for (auto &column : data) {
+    for (auto &column : *data) {
       column.second.reserve(nRows);
     }
   }
@@ -232,7 +233,7 @@ KistlerCSVFile::getData(int startRow, int stopRow) const {
       for (size_t j = 0; j < columnNames_.size(); j++) {
         try {
           float value = std::stof(row[j]);
-          data[columnNames_[j]].push_back(value);
+          data->at(columnNames_[j]).push_back(value);
         } catch (std::exception &e) {
           std::cerr
               << "Error in KistlerCSVFile::stringToFloatVector(): Cannot "

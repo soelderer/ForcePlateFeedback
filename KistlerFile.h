@@ -46,7 +46,7 @@ public:
   // will return data from row 27 until the end of the file.
   // It returns a map, so that the data columns can be accessed by their
   // column names, e.g. "Fx"
-  virtual std::unordered_map<std::string, std::vector<float>>
+  virtual std::shared_ptr<std::unordered_map<std::string, std::vector<float>>>
   getData(int startRow = -1, int stopRow = -1) const = 0;
 
   std::string getFilename() const { return fileName_; }
@@ -79,7 +79,7 @@ public:
   void validateFile() override;
 
   // CSV-specific implementations of getData.
-  std::unordered_map<std::string, std::vector<float>>
+  std::shared_ptr<std::unordered_map<std::string, std::vector<float>>>
   getData(int startRow = -1, int stopRow = -1) const override;
 
   // Parse the CSV header to get metadata like sampling rate and column names.
@@ -111,6 +111,6 @@ private:
 //   void validateFile() override;
 //
 //   // .dat-specific implementations of getData.
-//   std::unordered_map<std::string, std::vector<float>>
+//   std::unordered_map<std::string, std::vector<float>> &
 //   getData(int startRow = -1, int stopRow = -1) const override {}
 // };
