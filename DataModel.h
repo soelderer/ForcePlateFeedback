@@ -11,7 +11,9 @@
 // The current implementation is not for real live view, but playback of a CSV
 // file. This sets the speed of the playback (delay between re-processing in
 // ms).
-#define PLAYBACK_DELAY_MS 1
+// Benchmarks on my machine indicate that DataModel::process() takes around
+// 1-7ms, so sth. like 10ms seems reasonable.
+#define PLAYBACK_DELAY_MS 10
 
 // Placeholder for biomechanical toolkit (BTK):
 // https://biomechanical-toolkit.github.io/docs/API/

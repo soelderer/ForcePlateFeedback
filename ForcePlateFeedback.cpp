@@ -58,7 +58,7 @@ void ConfigWindow::handleStartButton() {
 
 // ____________________________________________________________________________
 void ConfigWindow::onStartLiveView(std::string fileName, float timeframe) {
-  startButton_->setText("Stop");
+  startButton_->setText("Pause");
 
   setFileButton_->setEnabled(false);
   fileLineEdit_->setEnabled(false);
@@ -79,7 +79,7 @@ void ConfigWindow::onStopLiveView() {
 // ____________________________________________________________________________
 OutputWindow::OutputWindow() {
   window_ = new QWidget();
-  window_->setFixedSize(400, 200);
+  window_->setFixedSize(1200, 600);
 
   QGridLayout *windowLayout = new QGridLayout;
 
@@ -104,7 +104,9 @@ OutputWindow::OutputWindow() {
   xSeries_->attachAxis(xAxisX_);
 
   xAxisY_ = new QValueAxis();
-  xAxisY_->setRange(-10, 10);
+  xAxisY_->setRange(-80, 80); // in the test file the data is out of range
+                              // sometimes, we will have to tweak this to see
+                              // what makes sense for our practical use
   xChart_->addAxis(xAxisY_, Qt::AlignLeft);
   xSeries_->attachAxis(xAxisY_);
 
@@ -131,7 +133,9 @@ OutputWindow::OutputWindow() {
   yCategories_.append("Y");
 
   yAxisX_ = new QValueAxis();
-  yAxisX_->setRange(-10, 10);
+  yAxisX_->setRange(-80, 80); // in the test file the data is out of range
+                              // sometimes, we will have to tweak this to see
+                              // what makes sense for our practical use
   yChart_->addAxis(yAxisX_, Qt::AlignBottom);
   ySeries_->attachAxis(yAxisX_);
 

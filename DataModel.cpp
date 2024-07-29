@@ -160,45 +160,28 @@ void DataModel::process() {
   // configured timeframe.
   // (sampling rate is guaranteed to be != 0)
 
-  qDebug() << "DataModel::process(): configTimeframe_ = " << configTimeframe_;
-  qDebug() << "DataModel::process(): kistlerFile_.getSamplingRate() = "
-           << kistlerFile_.getSamplingRate();
-
   int attemptedNumRows = configTimeframe_ * kistlerFile_.getSamplingRate();
 
-  qDebug() << "DataModel::process(): attemptedNumRows = " << attemptedNumRows;
-  qDebug() << "DataModel::process(): firstRow_ = " << firstRow_;
-  qDebug() << "DataModel::process(): lastRow_ = " << lastRow_;
-
   std::unordered_map<std::string, std::vector<float>> data;
-
-  qDebug() << "DataModel::process(): called getData(" << firstRow_ << ", "
-           << firstRow_ + attemptedNumRows - 1 << ")";
 
   data = kistlerFile_.getData(firstRow_, firstRow_ + attemptedNumRows - 1);
 
   if (data["abs time (s)"].size() != 0) {
     balanceParameters_.update(&data);
 
-    firstRow_++;
+    // Period is 1 / sampling rate, * 1000 to get it in miliseconds.
+    firstRow_ =
+        firstRow_ + PLAYBACK_DELAY_MS / kistlerFile_.getSamplingRate() * 1000;
+
     lastRow_ = firstRow_ + data["abs time (s)"].size();
     numRows_ = data["abs time (s)"].size();
 
     startTime_ = balanceParameters_.getStartTime();
     stopTime_ = balanceParameters_.getStopTime();
     timeframe_ = balanceParameters_.getTimeframe();
-
-    qDebug() << "DataModel::process(): PARAMETER[meanX] = "
-             << balanceParameters_.getMeanForceX();
-    qDebug() << "DataModel::process(): PARAMETER[meanY] = "
-             << balanceParameters_.getMeanForceY();
   }
 
   emit dataUpdated(&balanceParameters_);
-
-  qDebug() << "DataModel::process(): data.size() = "
-           << data["abs time (s)"].size();
-  qDebug() << "DataModel::process(): attemptedNumRows = " << attemptedNumRows;
 
   // Check if we reached EOF.
   if (data["abs time (s)"].size() < attemptedNumRows) {

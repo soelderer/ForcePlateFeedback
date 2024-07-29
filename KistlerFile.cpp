@@ -187,8 +187,6 @@ KistlerCSVFile::stringToFloatVector(std::vector<std::string> stringVector) {
 // ____________________________________________________________________________
 std::unordered_map<std::string, std::vector<float>>
 KistlerCSVFile::getData(int startRow, int stopRow) const {
-  qDebug() << "KistlerCSVFile::getData(" << startRow << ", " << stopRow << ")";
-
   // Check for invalid row indices.
   if (stopRow < startRow && stopRow != -1) {
     std::cerr << "Error in KistlerCSVFile::getData(): Invalid row indices "
@@ -220,6 +218,10 @@ KistlerCSVFile::getData(int startRow, int stopRow) const {
     }
   }
 
+  // Note: This is a big performance limitation, as the number of I/O operations
+  // increase linearly with application runtime. We will have to think about
+  // buffering or using byte-wise access with istream::seekg().
+
   // Take care of stopRow.
   int nRows;
   if (stopRow != -1 && startRow != -1) {
@@ -243,9 +245,6 @@ KistlerCSVFile::getData(int startRow, int stopRow) const {
   do {
     // Continue if we have not reached nRows yet OR we should read until EOF
     // (nRows == -1).
-    // qDebug() << "KistlerCSVFile::getData(int, int): i = " << i
-    //           << "; nRows = " << nRows;
-
     if ((nRows != -1 && i < nRows) || nRows == -1) {
       if (!std::getline(file, line)) {
         qDebug() << "KistlerCSVFile::getData(int, int): reached EOF";
