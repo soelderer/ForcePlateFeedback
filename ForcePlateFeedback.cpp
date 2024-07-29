@@ -223,6 +223,10 @@ ForcePlateFeedback::ForcePlateFeedback() {
   // Reset DataModel.
   QObject::connect(this, &ForcePlateFeedback::resetModel, dataModel_,
                    &DataModel::onResetModel);
+
+  // Invalid file selected.
+  QObject::connect(dataModel_, &DataModel::invalidFileSignal, this,
+                   &ForcePlateFeedback::onInvalidFile);
 }
 
 // ____________________________________________________________________________
@@ -247,8 +251,8 @@ void ForcePlateFeedback::startLiveView(QString fileName, QString timeframe) {
     running_ = true;
 
     // Notify ConfigWindow, OutputWindow and DataModel about the start.
-    emit startLiveViewSignal(fileName_, timeframe_);
     qInfo() << "Starting live view.";
+    emit startLiveViewSignal(fileName_, timeframe_);
   }
 }
 
@@ -257,8 +261,8 @@ void ForcePlateFeedback::stopLiveView() {
   if (running_) {
     running_ = false;
     // Notify ConfigWindow, OutputWindow and DataModel about the stop.
-    emit stopLiveViewSignal();
     qInfo() << "Stopping live view.";
+    emit stopLiveViewSignal();
   }
 }
 
@@ -288,6 +292,16 @@ void ForcePlateFeedback::onReachedEOF() {
   stopLiveView();
 
   // Reset the DataModel.
-  emit resetModel();
   qInfo() << "Resetting the DataModel.";
+  emit resetModel();
+}
+
+// ____________________________________________________________________________
+void ForcePlateFeedback::onInvalidFile(std::string fileName) {
+  stopLiveView();
+  QMessageBox invalidFileDialog;
+  invalidFileDialog.setText(
+      "File does not "
+      "appear to be a valid BioWare file. Please double-check.");
+  invalidFileDialog.exec();
 }

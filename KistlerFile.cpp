@@ -10,7 +10,8 @@ KistlerCSVFile::KistlerCSVFile(const std::string &fileName)
   validateFile();
 
   // Read column headers so we know which data we have available.
-  parseMetaData();
+  if (isValid_)
+    parseMetaData();
 
   // Now we're ready for getting data
 }
@@ -159,7 +160,7 @@ std::vector<std::string> KistlerCSVFile::sliceRow(std::string line,
 }
 
 // ____________________________________________________________________________
-std::shared_ptr<std::unordered_map<std::string, std::vector<float>>>
+const std::shared_ptr<std::unordered_map<std::string, std::vector<float>>>
 KistlerCSVFile::getData(int startRow, int stopRow) const {
   // Check for invalid row indices.
   if (stopRow < startRow && stopRow != -1) {

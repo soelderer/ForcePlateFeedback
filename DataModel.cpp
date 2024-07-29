@@ -144,6 +144,14 @@ void DataModel::onStartProcessing(std::string fileName, float timeframe) {
     kistlerFile_ = KistlerCSVFile(fileName_);
   }
 
+  // Invalid file...
+  if (!kistlerFile_.isValid()) {
+    emit invalidFileSignal(fileName_);
+    running_ = false;
+    return;
+  }
+
+  // ...or all good.
   running_ = true;
 
   if (!processingTimer_.isActive())
