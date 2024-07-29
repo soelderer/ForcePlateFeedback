@@ -130,7 +130,7 @@ DataModel::DataModel() : running_(false) {
 DataModel::~DataModel() {}
 
 // ____________________________________________________________________________
-void DataModel::startProcessing(std::string fileName, float timeframe) {
+void DataModel::onStartProcessing(std::string fileName, float timeframe) {
   configTimeframe_ = timeframe;
 
   // New file configured.
@@ -146,7 +146,7 @@ void DataModel::startProcessing(std::string fileName, float timeframe) {
 }
 
 // ____________________________________________________________________________
-void DataModel::stopProcessing() {
+void DataModel::onStopProcessing() {
   if (processingTimer_.isActive()) {
     processingTimer_.stop();
     running_ = false;
@@ -190,3 +190,16 @@ void DataModel::process() {
 }
 
 // ____________________________________________________________________________
+void DataModel::onResetModel() {
+  onStopProcessing();
+
+  startTime_ = 0;
+  stopTime_ = 0;
+  timeframe_ = 0;
+
+  firstRow_ = 0;
+  lastRow_ = 0;
+  numRows_ = 0;
+
+  // balanceParameters_ = new BalanceParameters();
+}

@@ -196,24 +196,24 @@ ForcePlateFeedback::ForcePlateFeedback() {
 
   // State notification signals.
   // Start live view.
-  QObject::connect(this, &ForcePlateFeedback::startLiveView, configWindow_,
-                   &ConfigWindow::onStartLiveView);
+  QObject::connect(this, &ForcePlateFeedback::startLiveViewSignal,
+                   configWindow_, &ConfigWindow::onStartLiveView);
 
-  QObject::connect(this, &ForcePlateFeedback::startLiveView, outputWindow_,
-                   &OutputWindow::onStartLiveView);
+  QObject::connect(this, &ForcePlateFeedback::startLiveViewSignal,
+                   outputWindow_, &OutputWindow::onStartLiveView);
 
-  QObject::connect(this, &ForcePlateFeedback::startLiveView, dataModel_,
-                   &DataModel::startProcessing);
+  QObject::connect(this, &ForcePlateFeedback::startLiveViewSignal, dataModel_,
+                   &DataModel::onStartProcessing);
 
   // Stop live view.
-  QObject::connect(this, &ForcePlateFeedback::stopLiveView, configWindow_,
+  QObject::connect(this, &ForcePlateFeedback::stopLiveViewSignal, configWindow_,
                    &ConfigWindow::onStopLiveView);
 
-  QObject::connect(this, &ForcePlateFeedback::stopLiveView, outputWindow_,
+  QObject::connect(this, &ForcePlateFeedback::stopLiveViewSignal, outputWindow_,
                    &OutputWindow::onStopLiveView);
 
-  QObject::connect(this, &ForcePlateFeedback::stopLiveView, dataModel_,
-                   &DataModel::stopProcessing);
+  QObject::connect(this, &ForcePlateFeedback::stopLiveViewSignal, dataModel_,
+                   &DataModel::onStopProcessing);
 
   // Data updated.
   QObject::connect(dataModel_, &DataModel::dataUpdated, this,
@@ -224,6 +224,10 @@ ForcePlateFeedback::ForcePlateFeedback() {
   // Reached EOF.
   QObject::connect(dataModel_, &DataModel::reachedEOF, this,
                    &ForcePlateFeedback::onReachedEOF);
+
+  // Reset DataModel.
+  QObject::connect(this, &ForcePlateFeedback::resetModel, dataModel_,
+                   &DataModel::onResetModel);
 }
 
 // ____________________________________________________________________________
@@ -237,31 +241,41 @@ ForcePlateFeedback::~ForcePlateFeedback() {
 void ForcePlateFeedback::showConfigWindow() { configWindow_->show(); }
 
 // ____________________________________________________________________________
-void ForcePlateFeedback::onStartButtonPressed(QString fileName,
-                                              QString timeframe) {
+void ForcePlateFeedback::startLiveView(QString fileName, QString timeframe) {
+  if (!running_) {
+    float timeframeFloat = timeframe.toFloat();
+
+    if (!validateConfigOptions(fileName.toStdString(), timeframeFloat)) {
+      // TODO: error message
+    }
+    fileName_ = fileName.toStdString();
+    timeframe_ = timeframeFloat / 1000; // ms to s
+
+    running_ = true;
+
+    // Notify ConfigWindow, OutputWindow and DataModel about the start.
+    emit startLiveViewSignal(fileName_, timeframe_);
+    qInfo() << "Starting live view.";
+  }
+}
+
+// ____________________________________________________________________________
+void ForcePlateFeedback::stopLiveView() {
   if (running_) {
     running_ = false;
     // Notify ConfigWindow, OutputWindow and DataModel about the stop.
-    emit stopLiveView();
+    emit stopLiveViewSignal();
     qInfo() << "Stopping live view.";
-    return;
   }
+}
 
-  float timeframeFloat = timeframe.toFloat();
-
-  if (!validateConfigOptions(fileName.toStdString(), timeframeFloat)) {
-    // error message
-  }
-  fileName_ = fileName.toStdString();
-  timeframe_ = timeframeFloat / 1000; // ms to s
-
-  running_ = true;
-
-  // Initialize the data model.
-
-  // Notify ConfigWindow, OutputWindow and DataModel about the start.
-  emit startLiveView(fileName_, timeframe_);
-  qInfo() << "Starting live view.";
+// ____________________________________________________________________________
+void ForcePlateFeedback::onStartButtonPressed(QString fileName,
+                                              QString timeframe) {
+  if (running_)
+    stopLiveView();
+  else
+    startLiveView(fileName, timeframe);
 }
 
 // ____________________________________________________________________________
@@ -281,6 +295,9 @@ void ForcePlateFeedback::onDataUpdated(BalanceParameters *balanceParameters) {
 
 // ____________________________________________________________________________
 void ForcePlateFeedback::onReachedEOF() {
-  emit stopLiveView();
-  qInfo() << "Stopping live view.";
+  stopLiveView();
+
+  // Reset the DataModel.
+  emit resetModel();
+  qInfo() << "Resetting the DataModel.";
 }

@@ -132,8 +132,9 @@ private slots:
   void process();
 
 public slots:
-  void startProcessing(std::string fileName, float timeframe);
-  void stopProcessing();
+  void onStartProcessing(std::string fileName, float timeframe);
+  void onStopProcessing();
+  void onResetModel();
 
 signals:
   void dataUpdated(BalanceParameters *balanceParameters);

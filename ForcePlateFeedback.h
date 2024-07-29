@@ -143,9 +143,15 @@ private:
   // options are valid.
   bool validateConfigOptions(std::string fileName, float timeframe);
 
-signals:
-  void startLiveView(std::string fileName, float timeframe);
+  // Start and stop the live view. Takes care of emitting the right signals,
+  // changing state variables etc.
+  void startLiveView(QString fileName, QString timeframe);
   void stopLiveView();
+
+signals:
+  void startLiveViewSignal(std::string fileName, float timeframe);
+  void stopLiveViewSignal();
+  void resetModel();
 
 private slots:
   // Start button was pressed.
