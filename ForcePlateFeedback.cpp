@@ -58,6 +58,9 @@ void ConfigWindow::handleStartButton() {
 
 // ____________________________________________________________________________
 void ConfigWindow::onStartLiveView(std::string fileName, float timeframe) {
+  // can't get rid of "unused parameters" because signatures must match the
+  // signal
+
   startButton_->setText("Pause");
 
   setFileButton_->setEnabled(false);
@@ -165,6 +168,9 @@ void OutputWindow::hide() { window_->hide(); }
 
 // ____________________________________________________________________________
 void OutputWindow::onStartLiveView(std::string fileName, float timeframe) {
+  // can't get rid of "unused parameters" because signatures must match the
+  // signal
+
   show();
 }
 
@@ -308,7 +314,7 @@ void ForcePlateFeedback::onReachedEOF() {
 }
 
 // ____________________________________________________________________________
-void ForcePlateFeedback::onInvalidFile(std::string fileName) {
+void ForcePlateFeedback::onInvalidFile() {
   stopLiveView();
   QMessageBox invalidFileDialog;
   invalidFileDialog.setText(

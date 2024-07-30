@@ -139,7 +139,7 @@ void DataModel::onStartProcessing(std::string fileName, float timeframe) {
 
   // Invalid file...
   if (!kistlerFile_.isValid()) {
-    emit invalidFileSignal(fileName_);
+    emit invalidFileSignal();
     running_ = false;
     return;
   }
@@ -165,7 +165,7 @@ void DataModel::process() {
   // configured timeframe.
   // (sampling rate is guaranteed to be != 0)
 
-  int attemptedNumRows = configTimeframe_ * kistlerFile_.getSamplingRate();
+  size_t attemptedNumRows = configTimeframe_ * kistlerFile_.getSamplingRate();
 
   try {
     auto data =

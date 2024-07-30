@@ -29,7 +29,6 @@ public:
   // checks (see below).
   KistlerFile() {}
   KistlerFile(const std::string &fileName) : fileName_(fileName) {}
-  virtual ~KistlerFile() {}
 
   // Method for some sanity checks on the file:
   // Does the file type match the subclass, is there the right magic number,
@@ -68,7 +67,6 @@ public:
   // CSV-specific implementation of the constructor.
   KistlerCSVFile() {}
   KistlerCSVFile(const std::string &fileName);
-  ~KistlerCSVFile() {}
 
   // CSV-specific implementations of sanity checks for the file.
   // This will check:

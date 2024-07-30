@@ -167,6 +167,6 @@ private slots:
 
 public slots:
   void onReachedEOF();
-  void onInvalidFile(std::string fileName);
+  void onInvalidFile();
   void onCorruptFile();
 };
