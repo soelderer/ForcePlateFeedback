@@ -164,11 +164,8 @@ TEST(KistlerCSVFileTest, parseMetaData) {
 // ____________________________________________________________________________
 TEST(KistlerCSVFileTest, getDataByIndices) {
   KistlerCSVFile kistlerFile("example_data/KistlerCSV_example.txt");
-  std::cout << "here" << std::endl;
-
   // Get the first row.
   auto data = kistlerFile.getData(0, 0);
-  std::cout << "there" << std::endl;
   ASSERT_EQ(data->size(), 9);
   ASSERT_EQ(data->at("abs time (s)").size(), 1);
   ASSERT_EQ(data->at("Fx").size(), 1);

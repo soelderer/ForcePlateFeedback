@@ -69,9 +69,12 @@ private:
 
 public slots:
   // Communication with ForcePlateFeedback class.
-  void onStartLiveView(std::string fileName, float timeframe);
+  void onStartLiveView(const std::string &fileName, const float timeframe);
   void onStopLiveView();
-  void onDataUpdated(BalanceParameters *balanceParameters);
+  void onDataUpdated(const BalanceParameters *balanceParameters);
+
+  // On const-correctness of signals:
+  // https://stackoverflow.com/questions/39281740/why-are-qt-signals-not-const
 };
 
 // A class for the implementation of the configuration window.
@@ -110,11 +113,11 @@ private slots:
 
 public slots:
   // Communication with ForcePlateFeedback class.
-  void onStartLiveView(std::string fileName, float timeframe);
+  void onStartLiveView(const std::string &fileName, const float timeframe);
   void onStopLiveView();
 
 signals:
-  void startButtonPressed(QString fileName, QString timeframe);
+  void startButtonPressed(const QString &fileName, const QString &timeframe);
 };
 
 // A class for the coordination of GUI and core logic. Sets up the
@@ -148,22 +151,23 @@ private:
 
   // Sanity checks / validation of config options. Returns true if the config
   // options are valid.
-  static bool validateConfigOptions(std::string fileName, float timeframe);
+  static bool validateConfigOptions(const std::string &fileName,
+                                    const float timeframe);
   FRIEND_TEST(ForcePlateFeedbackTest, validateConfigOptions);
 
   // Start and stop the live view. Takes care of emitting the right signals,
   // changing state variables etc.
-  void startLiveView(QString fileName, QString timeframe);
+  void startLiveView(const QString &fileName, const QString &timeframe);
   void stopLiveView();
 
 signals:
-  void startLiveViewSignal(std::string fileName, float timeframe);
+  void startLiveViewSignal(const std::string &fileName, const float timeframe);
   void stopLiveViewSignal();
   void resetModel();
 
 private slots:
   // Start button was pressed.
-  void onStartButtonPressed(QString fileName, QString timeframe);
+  void onStartButtonPressed(const QString &fileName, const QString &timeframe);
 
 public slots:
   void onReachedEOF();

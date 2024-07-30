@@ -32,8 +32,8 @@ class BalanceParameters {
 public:
   // Constructor with data provided.
   BalanceParameters(
-      std::shared_ptr<std::unordered_map<std::string, std::vector<float>>>
-          data);
+      const std::shared_ptr<std::unordered_map<std::string, std::vector<float>>>
+          &data);
 
   // Default constructor.
   BalanceParameters();
@@ -140,12 +140,12 @@ private slots:
   void process();
 
 public slots:
-  void onStartProcessing(std::string fileName, float timeframe);
+  void onStartProcessing(const std::string &fileName, const float timeframe);
   void onStopProcessing();
   void onResetModel();
 
 signals:
-  void dataUpdated(BalanceParameters *balanceParameters);
+  void dataUpdated(const BalanceParameters *balanceParameters);
   void reachedEOF();
   void invalidFileSignal();
   void corruptFileSignal();

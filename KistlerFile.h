@@ -85,7 +85,8 @@ public:
   void parseMetaData();
 
   // Slice a single CSV row into separate strings by a given delimiter.
-  static std::vector<std::string> sliceRow(std::string line_, char delimiter);
+  static std::vector<std::string> sliceRow(std::string line_,
+                                           const char delimiter);
 
   FRIEND_TEST(KistlerFileTest, KistlerCSVFileConstructor);
   FRIEND_TEST(KistlerCSVFileTest, parseMetaData);

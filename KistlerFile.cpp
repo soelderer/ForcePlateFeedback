@@ -137,7 +137,7 @@ void KistlerCSVFile::parseMetaData() {
 
 // ____________________________________________________________________________
 std::vector<std::string> KistlerCSVFile::sliceRow(std::string line,
-                                                  char delimiter) {
+                                                  const char delimiter) {
   // Remove newline and carriage return.
   line.erase(std::remove(line.begin(), line.end(), '\n'), line.cend());
   line.erase(std::remove(line.begin(), line.end(), '\r'), line.cend());

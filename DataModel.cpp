@@ -16,7 +16,8 @@ BalanceParameters::BalanceParameters() {
 
 // ____________________________________________________________________________
 BalanceParameters::BalanceParameters(
-    std::shared_ptr<std::unordered_map<std::string, std::vector<float>>> data) {
+    const std::shared_ptr<std::unordered_map<std::string, std::vector<float>>>
+        &data) {
   rawData_ = data;
 
   validateData();
@@ -128,7 +129,8 @@ DataModel::DataModel() : running_(false) {
 }
 
 // ____________________________________________________________________________
-void DataModel::onStartProcessing(std::string fileName, float timeframe) {
+void DataModel::onStartProcessing(const std::string &fileName,
+                                  const float timeframe) {
   configTimeframe_ = timeframe;
 
   // New file configured.

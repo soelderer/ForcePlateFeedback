@@ -57,7 +57,8 @@ void ConfigWindow::handleStartButton() {
 }
 
 // ____________________________________________________________________________
-void ConfigWindow::onStartLiveView(std::string fileName, float timeframe) {
+void ConfigWindow::onStartLiveView(const std::string &fileName,
+                                   const float timeframe) {
   // can't get rid of "unused parameters" because signatures must match the
   // signal
 
@@ -167,7 +168,8 @@ void OutputWindow::show() { window_->show(); }
 void OutputWindow::hide() { window_->hide(); }
 
 // ____________________________________________________________________________
-void OutputWindow::onStartLiveView(std::string fileName, float timeframe) {
+void OutputWindow::onStartLiveView(const std::string &fileName,
+                                   const float timeframe) {
   // can't get rid of "unused parameters" because signatures must match the
   // signal
 
@@ -178,7 +180,7 @@ void OutputWindow::onStartLiveView(std::string fileName, float timeframe) {
 void OutputWindow::onStopLiveView() { hide(); }
 
 // ____________________________________________________________________________
-void OutputWindow::onDataUpdated(BalanceParameters *balanceParameters) {
+void OutputWindow::onDataUpdated(const BalanceParameters *balanceParameters) {
   xSet_->replace(0, balanceParameters->getMeanForceX());
   ySet_->replace(0, balanceParameters->getMeanForceY());
 
@@ -250,7 +252,8 @@ ForcePlateFeedback::~ForcePlateFeedback() {
 void ForcePlateFeedback::showConfigWindow() { configWindow_->show(); }
 
 // ____________________________________________________________________________
-void ForcePlateFeedback::startLiveView(QString fileName, QString timeframe) {
+void ForcePlateFeedback::startLiveView(const QString &fileName,
+                                       const QString &timeframe) {
   if (!running_) {
     float timeframeFloat = timeframe.toFloat();
 
@@ -284,8 +287,8 @@ void ForcePlateFeedback::stopLiveView() {
 }
 
 // ____________________________________________________________________________
-void ForcePlateFeedback::onStartButtonPressed(QString fileName,
-                                              QString timeframe) {
+void ForcePlateFeedback::onStartButtonPressed(const QString &fileName,
+                                              const QString &timeframe) {
   if (running_)
     stopLiveView();
   else
@@ -293,8 +296,8 @@ void ForcePlateFeedback::onStartButtonPressed(QString fileName,
 }
 
 // ____________________________________________________________________________
-bool ForcePlateFeedback::validateConfigOptions(std::string fileName,
-                                               float timeframe) {
+bool ForcePlateFeedback::validateConfigOptions(const std::string &fileName,
+                                               const float timeframe) {
   if (fileName.empty())
     return false;
 
