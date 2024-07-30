@@ -198,7 +198,10 @@ void DataModel::process() {
   // configured timeframe.
   // (sampling rate is guaranteed to be != 0)
 
-  size_t attemptedNumRows = configTimeframe_ * kistlerFile_.getSamplingRate();
+  // +1 because with 1kHz sampling two rows are 1ms apart, so you need two of
+  // them to span 1ms.
+  size_t attemptedNumRows =
+      configTimeframe_ * kistlerFile_.getSamplingRate() + 1;
 
   try {
     auto data =

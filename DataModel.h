@@ -71,7 +71,7 @@ private:
   // If the data (and thus the whole object) is valid.
   bool isValid_;
 
-  // Time information
+  // Time information in seconds.
   float timeframe_;
   float startTime_;
   float stopTime_;
@@ -104,6 +104,7 @@ public:
   FRIEND_TEST(DataModelTest, onStartProcessing);
   FRIEND_TEST(DataModelTest, onStopProcessing);
   FRIEND_TEST(DataModelTest, onResetModel);
+  FRIEND_TEST(DataModelTest, process);
 
 private:
   // State variables.
@@ -118,7 +119,7 @@ private:
   // Name of the data file.
   std::string fileName_;
 
-  // Timeframe in seconds over which the parameters should be calculated
+  // Timeframe in miliseconds over which the parameters should be calculated
   // (user config).
   float configTimeframe_;
 

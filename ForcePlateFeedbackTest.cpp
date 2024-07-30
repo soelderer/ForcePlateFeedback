@@ -762,11 +762,11 @@ TEST(DataModelTest, onStartProcessing) {
   ASSERT_EQ(dataModel.numRows_, 0);
   ASSERT_FALSE(dataModel.running_);
 
-  dataModel.onStartProcessing("", 50.0);
+  dataModel.onStartProcessing("", 0.05);
 
   // ...still not running.
   ASSERT_STREQ(dataModel.fileName_.c_str(), "");
-  ASSERT_FLOAT_EQ(dataModel.configTimeframe_, 50.0);
+  ASSERT_FLOAT_EQ(dataModel.configTimeframe_, 0.05);
   ASSERT_EQ(dataModel.timeframe_, 0);
   ASSERT_EQ(dataModel.startTime_, 0);
   ASSERT_EQ(dataModel.stopTime_, 0);
@@ -776,10 +776,10 @@ TEST(DataModelTest, onStartProcessing) {
   ASSERT_FALSE(dataModel.running_);
 
   // Regular case.
-  dataModel.onStartProcessing("example_data/KistlerCSV_stub.txt", 50.0);
+  dataModel.onStartProcessing("example_data/KistlerCSV_stub.txt", 0.05);
 
   ASSERT_STREQ(dataModel.fileName_.c_str(), "example_data/KistlerCSV_stub.txt");
-  ASSERT_FLOAT_EQ(dataModel.configTimeframe_, 50.0);
+  ASSERT_FLOAT_EQ(dataModel.configTimeframe_, 0.05);
   ASSERT_EQ(dataModel.timeframe_, 0);
   ASSERT_EQ(dataModel.startTime_, 0);
   ASSERT_EQ(dataModel.stopTime_, 0);
@@ -789,10 +789,10 @@ TEST(DataModelTest, onStartProcessing) {
   ASSERT_TRUE(dataModel.running_);
 
   // Calling it twice should not change anything.
-  dataModel.onStartProcessing("example_data/KistlerCSV_stub.txt", 50.0);
+  dataModel.onStartProcessing("example_data/KistlerCSV_stub.txt", 0.05);
 
   ASSERT_STREQ(dataModel.fileName_.c_str(), "example_data/KistlerCSV_stub.txt");
-  ASSERT_FLOAT_EQ(dataModel.configTimeframe_, 50.0);
+  ASSERT_FLOAT_EQ(dataModel.configTimeframe_, 0.05);
   ASSERT_EQ(dataModel.timeframe_, 0);
   ASSERT_EQ(dataModel.startTime_, 0);
   ASSERT_EQ(dataModel.stopTime_, 0);
@@ -807,7 +807,7 @@ TEST(DataModelTest, onStopProcessing) {
   DataModel dataModel;
 
   // Regular case.
-  dataModel.onStartProcessing("example_data/KistlerCSV_stub.txt", 50.0);
+  dataModel.onStartProcessing("example_data/KistlerCSV_stub.txt", 0.05);
   ASSERT_TRUE(dataModel.running_);
   dataModel.onStopProcessing();
   ASSERT_FALSE(dataModel.running_);
@@ -817,13 +817,58 @@ TEST(DataModelTest, onStopProcessing) {
   ASSERT_FALSE(dataModel.running_);
 
   // Start again.
-  dataModel.onStartProcessing("example_data/KistlerCSV_stub.txt", 50.0);
+  dataModel.onStartProcessing("example_data/KistlerCSV_stub.txt", 0.05);
   ASSERT_TRUE(dataModel.running_);
 }
 
 // ____________________________________________________________________________
 TEST(DataModelTest, process) {
-  // ...
+  DataModel dataModel;
+
+  // Regular case.
+  dataModel.onStartProcessing("example_data/KistlerCSV_large.txt", 0.05);
+  ASSERT_TRUE(dataModel.running_);
+  ASSERT_FLOAT_EQ(dataModel.configTimeframe_, 0.05);
+  ASSERT_EQ(dataModel.timeframe_, 0);
+  ASSERT_EQ(dataModel.startTime_, 0);
+  ASSERT_EQ(dataModel.stopTime_, 0);
+  ASSERT_EQ(dataModel.firstRow_, 0);
+  ASSERT_EQ(dataModel.lastRow_, 0);
+  ASSERT_EQ(dataModel.numRows_, 0);
+
+  dataModel.process();
+
+  ASSERT_FLOAT_EQ(dataModel.timeframe_, 0.05);
+  ASSERT_FLOAT_EQ(dataModel.startTime_, 0);
+  ASSERT_FLOAT_EQ(dataModel.stopTime_, 0.05);
+  ASSERT_EQ(dataModel.firstRow_, PLAYBACK_DELAY_MS);
+  ASSERT_EQ(dataModel.lastRow_, PLAYBACK_DELAY_MS + 51);
+  ASSERT_EQ(dataModel.numRows_, 51);
+  ASSERT_FLOAT_EQ(dataModel.balanceParameters_.getStartTime(), 0);
+  ASSERT_FLOAT_EQ(dataModel.balanceParameters_.getStopTime(), 0.05);
+  ASSERT_EQ(dataModel.balanceParameters_.getNumRows(), 51);
+  ASSERT_FLOAT_EQ(dataModel.balanceParameters_.getTimeframe(), 0.05);
+  ASSERT_FLOAT_EQ(dataModel.balanceParameters_.getMeanForceX(),
+                  0.035464098039215686);
+  ASSERT_FLOAT_EQ(dataModel.balanceParameters_.getMeanForceY(),
+                  -0.02020123529411765);
+
+  dataModel.process();
+
+  ASSERT_FLOAT_EQ(dataModel.timeframe_, 0.05);
+  ASSERT_FLOAT_EQ(dataModel.startTime_, 0.01);
+  ASSERT_FLOAT_EQ(dataModel.stopTime_, 0.06);
+  ASSERT_EQ(dataModel.firstRow_, 2 * PLAYBACK_DELAY_MS);
+  ASSERT_EQ(dataModel.lastRow_, 2 * PLAYBACK_DELAY_MS + 51);
+  ASSERT_EQ(dataModel.numRows_, 51);
+  ASSERT_FLOAT_EQ(dataModel.balanceParameters_.getStartTime(), 0.01);
+  ASSERT_FLOAT_EQ(dataModel.balanceParameters_.getStopTime(), 0.06);
+  ASSERT_EQ(dataModel.balanceParameters_.getNumRows(), 51);
+  ASSERT_FLOAT_EQ(dataModel.balanceParameters_.getTimeframe(), 0.05);
+  ASSERT_FLOAT_EQ(dataModel.balanceParameters_.getMeanForceX(), 0.037762236);
+  ASSERT_FLOAT_EQ(dataModel.balanceParameters_.getMeanForceY(), -0.0048777051);
+
+  // Corrupt data file.
 }
 
 // ____________________________________________________________________________
