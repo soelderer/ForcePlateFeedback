@@ -39,7 +39,7 @@ public:
   OutputWindow();
   ~OutputWindow() {}
   // No custom destructors needed, as the Qt object tree takes care of
-  // destruction, https://stackoverflow.com/a/37056051
+  // widget destruction, https://stackoverflow.com/a/37056051
 
   // Qt objects are not supposed to be copied, so no copy constructor and
   // assignment operator implemented. See https://stackoverflow.com/a/19092698
@@ -89,7 +89,7 @@ public:
   ConfigWindow();
   ~ConfigWindow() {}
   // No custom destructors needed, as the Qt object tree takes care of
-  // destruction, https://stackoverflow.com/a/37056051
+  // widget destruction, https://stackoverflow.com/a/37056051
 
   // Qt objects are not supposed to be copied, so no copy constructor and
   // assignment operator implemented. See https://stackoverflow.com/a/19092698
@@ -128,10 +128,7 @@ class ForcePlateFeedback : public QWidget {
 
 public:
   ForcePlateFeedback();
-  ~ForcePlateFeedback() {}
-  // No custom destructors needed, as the Qt object tree takes care of
-  // destruction, https://stackoverflow.com/a/37056051
-
+  ~ForcePlateFeedback();
   // Qt objects are not supposed to be copied, so no copy constructor and
   // assignment operator implemented. See https://stackoverflow.com/a/19092698
 

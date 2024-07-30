@@ -31,7 +31,8 @@ BalanceParameters::~BalanceParameters() {
 
 // ____________________________________________________________________________
 void BalanceParameters::update(
-    std::shared_ptr<std::unordered_map<std::string, std::vector<float>>> data) {
+    const std::shared_ptr<std::unordered_map<std::string, std::vector<float>>>
+        &data) {
   rawData_ = data;
 
   validateData();

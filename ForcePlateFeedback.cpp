@@ -234,6 +234,13 @@ ForcePlateFeedback::ForcePlateFeedback() {
 }
 
 // ____________________________________________________________________________
+ForcePlateFeedback::~ForcePlateFeedback() {
+  delete outputWindow_;
+  delete configWindow_;
+  delete dataModel_;
+}
+
+// ____________________________________________________________________________
 void ForcePlateFeedback::showConfigWindow() { configWindow_->show(); }
 
 // ____________________________________________________________________________

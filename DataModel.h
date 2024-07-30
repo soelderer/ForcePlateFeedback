@@ -40,9 +40,9 @@ public:
   ~BalanceParameters();
 
   // Re-calculate parameters with given data.
-  void
-  update(std::shared_ptr<std::unordered_map<std::string, std::vector<float>>>
-             data);
+  void update(
+      const std::shared_ptr<std::unordered_map<std::string, std::vector<float>>>
+          &data);
 
   // Some sanity checks on the provided data.
   void validateData();
