@@ -748,6 +748,126 @@ TEST(DataModelTest, defaultConstructor) {
 }
 
 // ____________________________________________________________________________
+TEST(DataModelTest, onStartProcessing) {
+  // Invalid file.
+  DataModel dataModel;
+
+  ASSERT_STREQ(dataModel.fileName_.c_str(), "");
+  ASSERT_FLOAT_EQ(dataModel.configTimeframe_, 0.0);
+  ASSERT_EQ(dataModel.timeframe_, 0);
+  ASSERT_EQ(dataModel.startTime_, 0);
+  ASSERT_EQ(dataModel.stopTime_, 0);
+  ASSERT_EQ(dataModel.firstRow_, 0);
+  ASSERT_EQ(dataModel.lastRow_, 0);
+  ASSERT_EQ(dataModel.numRows_, 0);
+  ASSERT_FALSE(dataModel.running_);
+
+  dataModel.onStartProcessing("", 50.0);
+
+  // ...still not running.
+  ASSERT_STREQ(dataModel.fileName_.c_str(), "");
+  ASSERT_FLOAT_EQ(dataModel.configTimeframe_, 50.0);
+  ASSERT_EQ(dataModel.timeframe_, 0);
+  ASSERT_EQ(dataModel.startTime_, 0);
+  ASSERT_EQ(dataModel.stopTime_, 0);
+  ASSERT_EQ(dataModel.firstRow_, 0);
+  ASSERT_EQ(dataModel.lastRow_, 0);
+  ASSERT_EQ(dataModel.numRows_, 0);
+  ASSERT_FALSE(dataModel.running_);
+
+  // Regular case.
+  dataModel.onStartProcessing("example_data/KistlerCSV_stub.txt", 50.0);
+
+  ASSERT_STREQ(dataModel.fileName_.c_str(), "example_data/KistlerCSV_stub.txt");
+  ASSERT_FLOAT_EQ(dataModel.configTimeframe_, 50.0);
+  ASSERT_EQ(dataModel.timeframe_, 0);
+  ASSERT_EQ(dataModel.startTime_, 0);
+  ASSERT_EQ(dataModel.stopTime_, 0);
+  ASSERT_EQ(dataModel.firstRow_, 0);
+  ASSERT_EQ(dataModel.lastRow_, 0);
+  ASSERT_EQ(dataModel.numRows_, 0);
+  ASSERT_TRUE(dataModel.running_);
+
+  // Calling it twice should not change anything.
+  dataModel.onStartProcessing("example_data/KistlerCSV_stub.txt", 50.0);
+
+  ASSERT_STREQ(dataModel.fileName_.c_str(), "example_data/KistlerCSV_stub.txt");
+  ASSERT_FLOAT_EQ(dataModel.configTimeframe_, 50.0);
+  ASSERT_EQ(dataModel.timeframe_, 0);
+  ASSERT_EQ(dataModel.startTime_, 0);
+  ASSERT_EQ(dataModel.stopTime_, 0);
+  ASSERT_EQ(dataModel.firstRow_, 0);
+  ASSERT_EQ(dataModel.lastRow_, 0);
+  ASSERT_EQ(dataModel.numRows_, 0);
+  ASSERT_TRUE(dataModel.running_);
+}
+
+// ____________________________________________________________________________
+TEST(DataModelTest, onStopProcessing) {
+  DataModel dataModel;
+
+  // Regular case.
+  dataModel.onStartProcessing("example_data/KistlerCSV_stub.txt", 50.0);
+  ASSERT_TRUE(dataModel.running_);
+  dataModel.onStopProcessing();
+  ASSERT_FALSE(dataModel.running_);
+
+  // Double call.
+  dataModel.onStopProcessing();
+  ASSERT_FALSE(dataModel.running_);
+
+  // Start again.
+  dataModel.onStartProcessing("example_data/KistlerCSV_stub.txt", 50.0);
+  ASSERT_TRUE(dataModel.running_);
+}
+
+// ____________________________________________________________________________
+TEST(DataModelTest, process) {
+  // ...
+}
+
+// ____________________________________________________________________________
+TEST(DataModelTest, onResetModel) {
+  DataModel dataModel;
+
+  // Regular case.
+  dataModel.onStartProcessing("example_data/KistlerCSV_stub.txt", 50.0);
+
+  ASSERT_STREQ(dataModel.fileName_.c_str(), "example_data/KistlerCSV_stub.txt");
+  ASSERT_FLOAT_EQ(dataModel.configTimeframe_, 50.0);
+  ASSERT_EQ(dataModel.timeframe_, 0);
+  ASSERT_EQ(dataModel.startTime_, 0);
+  ASSERT_EQ(dataModel.stopTime_, 0);
+  ASSERT_EQ(dataModel.firstRow_, 0);
+  ASSERT_EQ(dataModel.lastRow_, 0);
+  ASSERT_EQ(dataModel.numRows_, 0);
+  ASSERT_TRUE(dataModel.running_);
+
+  dataModel.onStopProcessing();
+  ASSERT_FLOAT_EQ(dataModel.configTimeframe_, 50.0);
+  ASSERT_EQ(dataModel.timeframe_, 0);
+  ASSERT_EQ(dataModel.startTime_, 0);
+  ASSERT_EQ(dataModel.stopTime_, 0);
+  ASSERT_EQ(dataModel.firstRow_, 0);
+  ASSERT_EQ(dataModel.lastRow_, 0);
+  ASSERT_EQ(dataModel.numRows_, 0);
+  ASSERT_FALSE(dataModel.running_);
+
+  dataModel.onResetModel();
+
+  ASSERT_FLOAT_EQ(dataModel.configTimeframe_, 50.0);
+  ASSERT_EQ(dataModel.timeframe_, 0);
+  ASSERT_EQ(dataModel.startTime_, 0);
+  ASSERT_EQ(dataModel.stopTime_, 0);
+  ASSERT_EQ(dataModel.firstRow_, 0);
+  ASSERT_EQ(dataModel.lastRow_, 0);
+  ASSERT_EQ(dataModel.numRows_, 0);
+  ASSERT_FALSE(dataModel.running_);
+
+  // TODO: test with process();
+}
+
+// ____________________________________________________________________________
 TEST(ForcePlateFeedbackTest, validateConfigOptions) {
   // Empty file name.
   ASSERT_FALSE(ForcePlateFeedback::validateConfigOptions("", 50.0));

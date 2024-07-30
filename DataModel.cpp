@@ -93,7 +93,10 @@ void BalanceParameters::validateData() {
 }
 
 // ____________________________________________________________________________
-void BalanceParameters::preprocess() { data_ = rawData_; }
+void BalanceParameters::preprocess() {
+  // to be implemented if necessary
+  data_ = rawData_;
+}
 
 // ____________________________________________________________________________
 void BalanceParameters::calculateParameters() {
@@ -151,6 +154,10 @@ DataModel::DataModel() : running_(false) {
 // ____________________________________________________________________________
 void DataModel::onStartProcessing(const std::string &fileName,
                                   const float timeframe) {
+  // Should not happen.
+  if (running_)
+    return;
+
   configTimeframe_ = timeframe;
 
   // New file configured.
@@ -175,10 +182,14 @@ void DataModel::onStartProcessing(const std::string &fileName,
 
 // ____________________________________________________________________________
 void DataModel::onStopProcessing() {
-  if (processingTimer_.isActive()) {
+  // Should not happen.
+  if (!running_)
+    return;
+
+  if (processingTimer_.isActive())
     processingTimer_.stop();
-    running_ = false;
-  }
+
+  running_ = false;
 }
 
 // ____________________________________________________________________________

@@ -15,19 +15,13 @@
 // 1-7ms, so sth. like 10ms seems reasonable.
 #define PLAYBACK_DELAY_MS 10
 
-// Placeholder for biomechanical toolkit (BTK):
-// https://biomechanical-toolkit.github.io/docs/API/
-
 // Class for the balance parameters for a specified timeframe (e.g. 50ms).
-// The constructor takes a KistlerDatFile as input. There are methods for
+// The constructor takes a KistlerCSVFile as input. There are methods for
 // re-calculating the parameters (i.e. to regularly update the parameters
 // with the latest data).
-// The balance parameters are calculated from the raw data (i.e. forces,
-// moments, force application point). The specific parameters are to be
-// determined in the course of the project (it will need some trial and error
-// to see what makes sense for the participants, and depends on theoretical
-// assumptions). Some options are mean forces in X and Y direction, or more
-// complicated parameters like sway variability.
+// The balance parameters are calculated from the raw data.
+// For now, forces in X and Y direction are averaged over a user-configured
+// timeframe.
 class BalanceParameters {
 public:
   // Constructor with data provided.
@@ -38,7 +32,8 @@ public:
   // Default constructor.
   BalanceParameters();
 
-  // Default destructor is enough because we only hold shared_ptr
+  // Default destructor is enough because we only hold STL and primitive data
+  // types.
 
   // Re-calculate parameters with given data.
   void update(
@@ -49,13 +44,14 @@ public:
   void validateData();
 
   // Pre-process the currently stored data (digital filtering).
+  // For now, this is a only a wrapper assigning data_ to rawData_.
+  // We will implement this later on if necessary.
   void preprocess();
 
   // Functions to calculate balance parameters from the pre-processed data.
   void calculateParameters();
   void calculateMeanForceX();
   void calculateMeanForceY();
-  // ...
 
   // Getters.
   bool isValid() const { return isValid_; }
@@ -65,7 +61,6 @@ public:
   int getNumRows() const { return numRows_; }
   float getMeanForceX() const { return meanForceX_; }
   float getMeanForceY() const { return meanForceY_; }
-  // ...
 
 private:
   // The raw data.
@@ -85,7 +80,6 @@ private:
   // The parameters.
   float meanForceX_;
   float meanForceY_;
-  // more parameters ...
 
   FRIEND_TEST(BalanceParametersTest, calculateMeanForceX);
   FRIEND_TEST(BalanceParametersTest, calculateMeanForceY);
@@ -94,7 +88,8 @@ private:
 
 // A class for the data management. It is the "model" in the
 // model-view-controller framework. It continously reads data
-// and recalculates the balance parameters.
+// and recalculates the balance parameters. It uses Qt signals
+// and slots to communicate with other objects.
 class DataModel : public QObject {
   Q_OBJECT
 
@@ -103,9 +98,12 @@ public:
   // Qt objects are not supposed to be copied, so no copy constructor and
   // assignment operator implemented. See https://stackoverflow.com/a/19092698
 
-  // Default destructor is enough because we only hold STL and custom classes
+  // Default destructor is enough because we only hold STL and custom classes.
 
   FRIEND_TEST(DataModelTest, defaultConstructor);
+  FRIEND_TEST(DataModelTest, onStartProcessing);
+  FRIEND_TEST(DataModelTest, onStopProcessing);
+  FRIEND_TEST(DataModelTest, onResetModel);
 
 private:
   // State variables.
@@ -114,7 +112,7 @@ private:
   // A KistlerFile to read the data from.
   KistlerCSVFile kistlerFile_;
 
-  // Balance parameters, regularly updated by the WorkerThread.
+  // Balance parameters, regularly updated by the timed function process().
   BalanceParameters balanceParameters_;
 
   // Name of the data file.
