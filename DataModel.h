@@ -105,6 +105,8 @@ public:
 
   // Default destructor is enough because we only hold STL and custom classes
 
+  FRIEND_TEST(DataModelTest, defaultConstructor);
+
 private:
   // State variables.
   bool running_;

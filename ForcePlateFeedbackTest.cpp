@@ -734,6 +734,20 @@ TEST(BalanceParametersTest, update) {
 }
 
 // ____________________________________________________________________________
+TEST(DataModelTest, defaultConstructor) {
+  DataModel dataModel;
+
+  ASSERT_STREQ(dataModel.fileName_.c_str(), "");
+  ASSERT_EQ(dataModel.configTimeframe_, 0);
+  ASSERT_EQ(dataModel.timeframe_, 0);
+  ASSERT_EQ(dataModel.startTime_, 0);
+  ASSERT_EQ(dataModel.stopTime_, 0);
+  ASSERT_EQ(dataModel.firstRow_, 0);
+  ASSERT_EQ(dataModel.lastRow_, 0);
+  ASSERT_EQ(dataModel.numRows_, 0);
+}
+
+// ____________________________________________________________________________
 TEST(ForcePlateFeedbackTest, validateConfigOptions) {
   // Empty file name.
   ASSERT_FALSE(ForcePlateFeedback::validateConfigOptions("", 50.0));
@@ -753,7 +767,6 @@ TEST(ForcePlateFeedbackTest, validateConfigOptions) {
 }
 
 // ____________________________________________________________________________
-
 int main() {
   ::testing::InitGoogleTest();
   return RUN_ALL_TESTS();
