@@ -21,8 +21,10 @@ BalanceParameters::BalanceParameters(
   rawData_ = data;
 
   validateData();
-  preprocess();
-  calculateParameters();
+  if (isValid_) {
+    preprocess();
+    calculateParameters();
+  }
 }
 
 // ____________________________________________________________________________
@@ -32,8 +34,10 @@ void BalanceParameters::update(
   rawData_ = data;
 
   validateData();
-  preprocess();
-  calculateParameters();
+  if (isValid_) {
+    preprocess();
+    calculateParameters();
+  }
 }
 
 // ____________________________________________________________________________
@@ -44,6 +48,8 @@ void BalanceParameters::validateData() {
     startTime_ = 0;
     stopTime_ = 0;
     numRows_ = 0;
+    meanForceX_ = 0;
+    meanForceY_ = 0;
 
     isValid_ = false;
     return;
@@ -57,6 +63,8 @@ void BalanceParameters::validateData() {
     startTime_ = 0;
     stopTime_ = 0;
     numRows_ = 0;
+    meanForceX_ = 0;
+    meanForceY_ = 0;
 
     isValid_ = false;
     return;
@@ -69,6 +77,8 @@ void BalanceParameters::validateData() {
     startTime_ = 0;
     stopTime_ = 0;
     numRows_ = 0;
+    meanForceX_ = 0;
+    meanForceY_ = 0;
 
     isValid_ = false;
     return;

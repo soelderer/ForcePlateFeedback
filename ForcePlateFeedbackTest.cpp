@@ -380,10 +380,8 @@ TEST(BalanceParametersTest, calculateMeanForceX) {
 
   // Empty vector should yield an average of 0.
   (*data)["Fx"];
-  BalanceParameters balanceParameters(data);
-  // Constructor already calls calculateParameters(), so let's reset it and
-  // call it again manually.
-  balanceParameters.meanForceX_ = 0;
+  BalanceParameters balanceParameters;
+  balanceParameters.data_ = data;
   balanceParameters.calculateMeanForceX();
   ASSERT_FLOAT_EQ(balanceParameters.meanForceX_, 0);
 
@@ -394,8 +392,7 @@ TEST(BalanceParametersTest, calculateMeanForceX) {
   (*data)["Fx"].push_back(2);
   (*data)["Fx"].push_back(3);
 
-  balanceParameters = BalanceParameters(data);
-  balanceParameters.meanForceX_ = 0;
+  balanceParameters.data_ = data;
   balanceParameters.calculateMeanForceX();
   ASSERT_FLOAT_EQ(balanceParameters.meanForceX_, 2);
 
@@ -406,8 +403,7 @@ TEST(BalanceParametersTest, calculateMeanForceX) {
   (*data)["Fx"].push_back(2);
   (*data)["Fx"].push_back(3);
 
-  balanceParameters = BalanceParameters(data);
-  balanceParameters.meanForceX_ = 0;
+  balanceParameters.data_ = data;
   balanceParameters.calculateMeanForceX();
   ASSERT_FLOAT_EQ(balanceParameters.meanForceX_, 1.0 * 4 / 3);
 
@@ -425,8 +421,7 @@ TEST(BalanceParametersTest, calculateMeanForceX) {
   (*data)["Fx"].push_back(-0.011207);
   (*data)["Fx"].push_back(0.145173);
 
-  balanceParameters = BalanceParameters(data);
-  balanceParameters.meanForceX_ = 0;
+  balanceParameters.data_ = data;
   balanceParameters.calculateMeanForceX();
   ASSERT_FLOAT_EQ(balanceParameters.getMeanForceX(), 0.0317253);
 }
@@ -438,10 +433,8 @@ TEST(BalanceParametersTest, calculateMeanForceY) {
 
   // Empty vector should yield an average of 0.
   (*data)["Fy"];
-  BalanceParameters balanceParameters(data);
-  // Constructor already calls calculateParameters(), so let's reset it and
-  // call it again manually.
-  balanceParameters.meanForceY_ = 0;
+  BalanceParameters balanceParameters;
+  balanceParameters.data_ = data;
   balanceParameters.calculateMeanForceY();
   ASSERT_FLOAT_EQ(balanceParameters.meanForceY_, 0);
 
@@ -452,8 +445,7 @@ TEST(BalanceParametersTest, calculateMeanForceY) {
   (*data)["Fy"].push_back(2);
   (*data)["Fy"].push_back(3);
 
-  balanceParameters = BalanceParameters(data);
-  balanceParameters.meanForceY_ = 0;
+  balanceParameters.data_ = data;
   balanceParameters.calculateMeanForceY();
   ASSERT_FLOAT_EQ(balanceParameters.meanForceY_, 2);
 
@@ -464,8 +456,7 @@ TEST(BalanceParametersTest, calculateMeanForceY) {
   (*data)["Fy"].push_back(2);
   (*data)["Fy"].push_back(3);
 
-  balanceParameters = BalanceParameters(data);
-  balanceParameters.meanForceY_ = 0;
+  balanceParameters.data_ = data;
   balanceParameters.calculateMeanForceY();
   ASSERT_FLOAT_EQ(balanceParameters.meanForceY_, 1.0 * 4 / 3);
 
@@ -483,8 +474,7 @@ TEST(BalanceParametersTest, calculateMeanForceY) {
   (*data)["Fy"].push_back(-0.011207);
   (*data)["Fy"].push_back(0.145173);
 
-  balanceParameters = BalanceParameters(data);
-  balanceParameters.meanForceY_ = 0;
+  balanceParameters.data_ = data;
   balanceParameters.calculateMeanForceY();
   ASSERT_FLOAT_EQ(balanceParameters.getMeanForceY(), 0.0317253);
 }
@@ -607,6 +597,16 @@ TEST(BalanceParametersTest, constructor) {
   auto data =
       std::make_shared<std::unordered_map<std::string, std::vector<float>>>();
   // some code duplication from the tests above ...
+  (*data)["abs time (s)"].push_back(0.0);
+  (*data)["abs time (s)"].push_back(0.001);
+  (*data)["abs time (s)"].push_back(0.002);
+  (*data)["abs time (s)"].push_back(0.003);
+  (*data)["abs time (s)"].push_back(0.004);
+  (*data)["abs time (s)"].push_back(0.005);
+  (*data)["abs time (s)"].push_back(0.006);
+  (*data)["abs time (s)"].push_back(0.007);
+  (*data)["abs time (s)"].push_back(0.008);
+  (*data)["abs time (s)"].push_back(0.009);
   (*data)["Fx"].push_back(0.145133);
   (*data)["Fx"].push_back(-0.011368);
   (*data)["Fx"].push_back(0.027848);
@@ -629,9 +629,108 @@ TEST(BalanceParametersTest, constructor) {
   (*data)["Fy"].push_back(0.145173);
 
   BalanceParameters balanceParameters(data);
-  // ASSERT_TRUE(balanceParameters.isValid());
+  ASSERT_TRUE(balanceParameters.isValid());
   ASSERT_FLOAT_EQ(balanceParameters.getMeanForceX(), 0.0317253);
   ASSERT_FLOAT_EQ(balanceParameters.getMeanForceY(), 0.0317253);
+  ASSERT_FLOAT_EQ(balanceParameters.getStartTime(), 0.0);
+  ASSERT_FLOAT_EQ(balanceParameters.getStopTime(), 0.009);
+  ASSERT_FLOAT_EQ(balanceParameters.getTimeframe(), 0.009);
+}
+
+// ____________________________________________________________________________
+TEST(BalanceParametersTest, update) {
+  // Regular case.
+  BalanceParameters balanceParameters;
+  ASSERT_FALSE(balanceParameters.isValid());
+  ASSERT_FLOAT_EQ(balanceParameters.getTimeframe(), 0);
+  ASSERT_FLOAT_EQ(balanceParameters.getStartTime(), 0);
+  ASSERT_FLOAT_EQ(balanceParameters.getStopTime(), 0);
+  ASSERT_EQ(balanceParameters.getNumRows(), 0);
+
+  auto data =
+      std::make_shared<std::unordered_map<std::string, std::vector<float>>>();
+  // some code duplication from the tests above ...
+  (*data)["abs time (s)"].push_back(0.0);
+  (*data)["abs time (s)"].push_back(0.001);
+  (*data)["abs time (s)"].push_back(0.002);
+  (*data)["abs time (s)"].push_back(0.003);
+  (*data)["abs time (s)"].push_back(0.004);
+  (*data)["abs time (s)"].push_back(0.005);
+  (*data)["abs time (s)"].push_back(0.006);
+  (*data)["abs time (s)"].push_back(0.007);
+  (*data)["abs time (s)"].push_back(0.008);
+  (*data)["abs time (s)"].push_back(0.009);
+  (*data)["Fx"].push_back(0.145133);
+  (*data)["Fx"].push_back(-0.011368);
+  (*data)["Fx"].push_back(0.027848);
+  (*data)["Fx"].push_back(0.145133);
+  (*data)["Fx"].push_back(-0.011408);
+  (*data)["Fx"].push_back(0.066983);
+  (*data)["Fx"].push_back(-0.050422);
+  (*data)["Fx"].push_back(-0.128612);
+  (*data)["Fx"].push_back(-0.011207);
+  (*data)["Fx"].push_back(0.145173);
+  (*data)["Fy"].push_back(0.145133);
+  (*data)["Fy"].push_back(-0.011368);
+  (*data)["Fy"].push_back(0.027848);
+  (*data)["Fy"].push_back(0.145133);
+  (*data)["Fy"].push_back(-0.011408);
+  (*data)["Fy"].push_back(0.066983);
+  (*data)["Fy"].push_back(-0.050422);
+  (*data)["Fy"].push_back(-0.128612);
+  (*data)["Fy"].push_back(-0.011207);
+  (*data)["Fy"].push_back(0.145173);
+
+  balanceParameters.update(data);
+
+  ASSERT_TRUE(balanceParameters.isValid());
+  ASSERT_FLOAT_EQ(balanceParameters.getMeanForceX(), 0.0317253);
+  ASSERT_FLOAT_EQ(balanceParameters.getMeanForceY(), 0.0317253);
+  ASSERT_FLOAT_EQ(balanceParameters.getStartTime(), 0.0);
+  ASSERT_FLOAT_EQ(balanceParameters.getStopTime(), 0.009);
+  ASSERT_FLOAT_EQ(balanceParameters.getTimeframe(), 0.009);
+
+  // Unequal column length.
+  data =
+      std::make_shared<std::unordered_map<std::string, std::vector<float>>>();
+  (*data)["abs time (s)"].push_back(0.0);
+  (*data)["abs time (s)"].push_back(0.001);
+  (*data)["abs time (s)"].push_back(0.002);
+  (*data)["abs time (s)"].push_back(0.003);
+  (*data)["abs time (s)"].push_back(0.004);
+  (*data)["abs time (s)"].push_back(0.005);
+  (*data)["abs time (s)"].push_back(0.006);
+  (*data)["abs time (s)"].push_back(0.007);
+  (*data)["abs time (s)"].push_back(0.008);
+  (*data)["abs time (s)"].push_back(0.009);
+  (*data)["Fx"].push_back(0.145133);
+  (*data)["Fx"].push_back(-0.011368);
+  (*data)["Fx"].push_back(0.027848);
+  (*data)["Fx"].push_back(0.145133);
+  (*data)["Fx"].push_back(-0.011408);
+  (*data)["Fx"].push_back(0.066983);
+  (*data)["Fx"].push_back(-0.050422);
+  (*data)["Fx"].push_back(-0.128612);
+  (*data)["Fx"].push_back(-0.011207);
+  (*data)["Fx"].push_back(0.145173);
+  (*data)["Fy"].push_back(0.145133);
+  (*data)["Fy"].push_back(-0.011368);
+  (*data)["Fy"].push_back(0.027848);
+  (*data)["Fy"].push_back(0.145133);
+  (*data)["Fy"].push_back(-0.011408);
+  (*data)["Fy"].push_back(0.066983);
+  (*data)["Fy"].push_back(-0.050422);
+  (*data)["Fy"].push_back(-0.128612);
+  (*data)["Fy"].push_back(0.145173);
+
+  balanceParameters.update(data);
+
+  ASSERT_FALSE(balanceParameters.isValid());
+  ASSERT_FLOAT_EQ(balanceParameters.getMeanForceX(), 0);
+  ASSERT_FLOAT_EQ(balanceParameters.getMeanForceY(), 0);
+  ASSERT_FLOAT_EQ(balanceParameters.getStartTime(), 0.0);
+  ASSERT_FLOAT_EQ(balanceParameters.getStopTime(), 0.0);
+  ASSERT_FLOAT_EQ(balanceParameters.getTimeframe(), 0.0);
 }
 
 // ____________________________________________________________________________
