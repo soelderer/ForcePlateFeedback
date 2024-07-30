@@ -62,14 +62,24 @@ void BalanceParameters::validateData() {
     return;
   }
 
+  // Check if columns have the same length.
+  if ((*rawData_)["Fx"].size() != (*rawData_)["Fy"].size() ||
+      (*rawData_)["Fx"].size() != (*rawData_)["abs time (s)"].size()) {
+    timeframe_ = 0;
+    startTime_ = 0;
+    stopTime_ = 0;
+    numRows_ = 0;
+
+    isValid_ = false;
+    return;
+  }
+
+  isValid_ = true;
+
   numRows_ = (*rawData_)["abs time (s)"].size();
   startTime_ = (*rawData_)["abs time (s)"].front();
   stopTime_ = (*rawData_)["abs time (s)"].back();
   timeframe_ = stopTime_ - startTime_;
-
-  // TODO: real sanity checks ...
-
-  isValid_ = true;
 }
 
 // ____________________________________________________________________________

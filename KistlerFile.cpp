@@ -20,7 +20,6 @@ KistlerCSVFile::KistlerCSVFile(const std::string &fileName)
 void KistlerCSVFile::validateFile() {
   std::ifstream file(fileName_);
 
-  // makes sense?
   isValid_ = true;
 
   // (1) Check if file exists.
@@ -101,19 +100,30 @@ void KistlerCSVFile::parseMetaData() {
                  "determine the sampling rate of the file, it does not appear "
                  "to be a valid BioWare file: "
               << fileName_ << std::endl;
+    isValid_ = false;
     return;
   } else {
     // Assuming that the sampling rate is the same for each channel.
     if (samplingRates_.size() > 1) {
-      samplingRate_ = std::stof(samplingRates_[1]);
+      float samplingRate;
+      try {
+        samplingRate = std::stof(samplingRates_[1]);
+      } catch (std::exception &e) {
+        // failed to parse sampling rate -> invalid file
+        isValid_ = false;
+        return;
+      }
 
-      if (samplingRate_ == 0) {
-        std::cerr << "Error in KistlerCSVFile::parseMetaData(): Determined a "
-                     "sampling rate of the file of 0 Hz, it does not appear to "
+      if (samplingRate <= 0) {
+        std::cerr << "Error in KistlerCSVFile::parseMetaData(): Determined an "
+                     "invalid sampling rate of the file, it does not appear to "
                      "be a valid BioWare file: "
                   << fileName_ << std::endl;
+        isValid_ = false;
+        return;
       }
-      qDebug() << "Detected sampling rate of " << samplingRate_ << "Hz.";
+      samplingRate_ = samplingRate;
+      qDebug() << "Detected sampling rate of" << samplingRate_ << "Hz.";
 
     } else {
       std::cerr
@@ -121,6 +131,7 @@ void KistlerCSVFile::parseMetaData() {
              "determine the sampling rate of the file, it does not appear "
              "to be a valid BioWare file: "
           << fileName_ << std::endl;
+      isValid_ = false;
       return;
     }
   }

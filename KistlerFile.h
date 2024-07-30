@@ -27,8 +27,9 @@ class KistlerFile {
 public:
   // The constructor takes a file name as input and performs some sanity
   // checks (see below).
-  KistlerFile() {}
-  KistlerFile(const std::string &fileName) : fileName_(fileName) {}
+  KistlerFile() : fileName_(""), isValid_(false), samplingRate_(0) {}
+  KistlerFile(const std::string &fileName)
+      : fileName_(fileName), isValid_(false), samplingRate_(0) {}
 
   // Method for some sanity checks on the file:
   // Does the file type match the subclass, is there the right magic number,
@@ -65,7 +66,7 @@ protected:
 class KistlerCSVFile : public KistlerFile {
 public:
   // CSV-specific implementation of the constructor.
-  KistlerCSVFile() {}
+  KistlerCSVFile() : KistlerFile() {}
   KistlerCSVFile(const std::string &fileName);
 
   // CSV-specific implementations of sanity checks for the file.

@@ -134,6 +134,8 @@ TEST(KistlerCSVFileTest, parseMetaData) {
   ASSERT_STREQ(kistlerFile.columnNames_[6].c_str(), "Mz");
   ASSERT_STREQ(kistlerFile.columnNames_[7].c_str(), "Ax");
   ASSERT_STREQ(kistlerFile.columnNames_[8].c_str(), "Ay");
+  ASSERT_FLOAT_EQ(kistlerFile.getSamplingRate(), 1000.0);
+  ASSERT_TRUE(kistlerFile.isValid());
 
   // Other column names.
   kistlerFile = KistlerCSVFile("example_data/KistlerCSV_wrong_column.txt");
@@ -153,13 +155,34 @@ TEST(KistlerCSVFileTest, parseMetaData) {
   ASSERT_STREQ(kistlerFile.columnNames_[6].c_str(), " jklöklklölökMz");
   ASSERT_STREQ(kistlerFile.columnNames_[7].c_str(), "Ax");
   ASSERT_STREQ(kistlerFile.columnNames_[8].c_str(), "Ay 203 jlkd");
+  ASSERT_FLOAT_EQ(kistlerFile.getSamplingRate(), 1000.0);
+  ASSERT_TRUE(kistlerFile.isValid());
 
-  // Edge cases not really expected as this would be a corrupted CSV file.
-
-  // TODO: test sampling rate detection
+  // Invalid sampling rate.
+  kistlerFile =
+      KistlerCSVFile("example_data/KistlerCSV_wrong_samplingrate.txt");
+  kistlerFile.columnNames_ = std::vector<std::string>();
+  ASSERT_EQ(kistlerFile.columnNames_.size(), 0);
+  kistlerFile.parseMetaData();
+  ASSERT_EQ(
+      kistlerFile.columnNames_.size(),
+      0); // columns are parsed after sampling rate, function quits when invalid
+  ASSERT_FALSE(kistlerFile.isValid());
+  ASSERT_FLOAT_EQ(kistlerFile.getSamplingRate(), 0.0);
 }
 
-// stringToFloatVector()  -- dont need that anymore?
+// ____________________________________________________________________________
+TEST(KistlerCSVFileTest, kistlerCSVFileDefaultConstructor) {
+  KistlerCSVFile kistlerFile;
+  ASSERT_FALSE(kistlerFile.isValid());
+  ASSERT_STREQ(kistlerFile.getFilename().c_str(), "");
+  ASSERT_FLOAT_EQ(kistlerFile.getSamplingRate(), 0);
+}
+
+// I wasn't sure how to test the non-default constructor without code
+// duplication from validateFile() and parseMetaData() ... essentially, these
+// two functions are a test of the constructor, because I check for the right
+// filename, sampling rate, column names.
 
 // ____________________________________________________________________________
 TEST(KistlerCSVFileTest, getDataByIndices) {
@@ -341,6 +364,16 @@ TEST(KistlerCSVFileTest, getDataByIndices) {
 }
 
 // ____________________________________________________________________________
+TEST(BalanceParametersTest, defaultConstructor) {
+  BalanceParameters balanceParameters;
+  ASSERT_FALSE(balanceParameters.isValid());
+  ASSERT_FLOAT_EQ(balanceParameters.getTimeframe(), 0);
+  ASSERT_FLOAT_EQ(balanceParameters.getStartTime(), 0);
+  ASSERT_FLOAT_EQ(balanceParameters.getStopTime(), 0);
+  ASSERT_EQ(balanceParameters.getNumRows(), 0);
+}
+
+// ____________________________________________________________________________
 TEST(BalanceParametersTest, calculateMeanForceX) {
   auto data =
       std::make_shared<std::unordered_map<std::string, std::vector<float>>>();
@@ -395,7 +428,7 @@ TEST(BalanceParametersTest, calculateMeanForceX) {
   balanceParameters = BalanceParameters(data);
   balanceParameters.meanForceX_ = 0;
   balanceParameters.calculateMeanForceX();
-  ASSERT_FLOAT_EQ(balanceParameters.meanForceX_, 0.0317253);
+  ASSERT_FLOAT_EQ(balanceParameters.getMeanForceX(), 0.0317253);
 }
 
 // ____________________________________________________________________________
@@ -453,7 +486,152 @@ TEST(BalanceParametersTest, calculateMeanForceY) {
   balanceParameters = BalanceParameters(data);
   balanceParameters.meanForceY_ = 0;
   balanceParameters.calculateMeanForceY();
-  ASSERT_FLOAT_EQ(balanceParameters.meanForceY_, 0.0317253);
+  ASSERT_FLOAT_EQ(balanceParameters.getMeanForceY(), 0.0317253);
+}
+
+// ____________________________________________________________________________
+TEST(BalanceParametersTest, validateData) {
+  // Regular case.
+  auto data =
+      std::make_shared<std::unordered_map<std::string, std::vector<float>>>();
+  (*data)["abs time (s)"].push_back(0.0);
+  (*data)["abs time (s)"].push_back(0.001);
+  (*data)["abs time (s)"].push_back(0.002);
+  (*data)["abs time (s)"].push_back(0.003);
+  (*data)["abs time (s)"].push_back(0.004);
+  (*data)["abs time (s)"].push_back(0.005);
+  (*data)["abs time (s)"].push_back(0.006);
+  (*data)["abs time (s)"].push_back(0.007);
+  (*data)["abs time (s)"].push_back(0.008);
+  (*data)["abs time (s)"].push_back(0.009);
+  (*data)["Fx"].push_back(0.145133);
+  (*data)["Fx"].push_back(-0.011368);
+  (*data)["Fx"].push_back(0.027848);
+  (*data)["Fx"].push_back(0.145133);
+  (*data)["Fx"].push_back(-0.011408);
+  (*data)["Fx"].push_back(0.066983);
+  (*data)["Fx"].push_back(-0.050422);
+  (*data)["Fx"].push_back(-0.128612);
+  (*data)["Fx"].push_back(-0.011207);
+  (*data)["Fx"].push_back(0.145173);
+  (*data)["Fy"].push_back(0.145133);
+  (*data)["Fy"].push_back(-0.011368);
+  (*data)["Fy"].push_back(0.027848);
+  (*data)["Fy"].push_back(0.145133);
+  (*data)["Fy"].push_back(-0.011408);
+  (*data)["Fy"].push_back(0.066983);
+  (*data)["Fy"].push_back(-0.050422);
+  (*data)["Fy"].push_back(-0.128612);
+  (*data)["Fy"].push_back(-0.011207);
+  (*data)["Fy"].push_back(0.145173);
+
+  BalanceParameters balanceParameters;
+  balanceParameters.rawData_ = data;
+
+  balanceParameters.validateData();
+  ASSERT_TRUE(balanceParameters.isValid());
+
+  // Missing Fy column.
+  data =
+      std::make_shared<std::unordered_map<std::string, std::vector<float>>>();
+  (*data)["abs time (s)"].push_back(0.0);
+  (*data)["abs time (s)"].push_back(0.001);
+  (*data)["abs time (s)"].push_back(0.002);
+  (*data)["abs time (s)"].push_back(0.003);
+  (*data)["abs time (s)"].push_back(0.004);
+  (*data)["abs time (s)"].push_back(0.005);
+  (*data)["abs time (s)"].push_back(0.006);
+  (*data)["abs time (s)"].push_back(0.007);
+  (*data)["abs time (s)"].push_back(0.008);
+  (*data)["abs time (s)"].push_back(0.009);
+  (*data)["Fx"].push_back(0.145133);
+  (*data)["Fx"].push_back(-0.011368);
+  (*data)["Fx"].push_back(0.027848);
+  (*data)["Fx"].push_back(0.145133);
+  (*data)["Fx"].push_back(-0.011408);
+  (*data)["Fx"].push_back(0.066983);
+  (*data)["Fx"].push_back(-0.050422);
+  (*data)["Fx"].push_back(-0.128612);
+  (*data)["Fx"].push_back(-0.011207);
+  (*data)["Fx"].push_back(0.145173);
+
+  balanceParameters;
+  balanceParameters.rawData_ = data;
+
+  balanceParameters.validateData();
+  ASSERT_FALSE(balanceParameters.isValid());
+
+  // Unequal column length.
+  data =
+      std::make_shared<std::unordered_map<std::string, std::vector<float>>>();
+  (*data)["abs time (s)"].push_back(0.0);
+  (*data)["abs time (s)"].push_back(0.001);
+  (*data)["abs time (s)"].push_back(0.002);
+  (*data)["abs time (s)"].push_back(0.003);
+  (*data)["abs time (s)"].push_back(0.004);
+  (*data)["abs time (s)"].push_back(0.005);
+  (*data)["abs time (s)"].push_back(0.006);
+  (*data)["abs time (s)"].push_back(0.007);
+  (*data)["abs time (s)"].push_back(0.008);
+  (*data)["abs time (s)"].push_back(0.009);
+  (*data)["Fx"].push_back(0.145133);
+  (*data)["Fx"].push_back(-0.011368);
+  (*data)["Fx"].push_back(0.027848);
+  (*data)["Fx"].push_back(0.145133);
+  (*data)["Fx"].push_back(-0.011408);
+  (*data)["Fx"].push_back(0.066983);
+  (*data)["Fx"].push_back(-0.050422);
+  (*data)["Fx"].push_back(-0.128612);
+  (*data)["Fx"].push_back(-0.011207);
+  (*data)["Fx"].push_back(0.145173);
+  (*data)["Fy"].push_back(0.145133);
+  (*data)["Fy"].push_back(-0.011368);
+  (*data)["Fy"].push_back(0.027848);
+  (*data)["Fy"].push_back(0.145133);
+  (*data)["Fy"].push_back(-0.011408);
+  (*data)["Fy"].push_back(0.066983);
+  (*data)["Fy"].push_back(-0.050422);
+  (*data)["Fy"].push_back(-0.128612);
+  (*data)["Fy"].push_back(0.145173);
+
+  balanceParameters;
+  balanceParameters.rawData_ = data;
+
+  balanceParameters.validateData();
+  ASSERT_FALSE(balanceParameters.isValid());
+}
+
+// ____________________________________________________________________________
+TEST(BalanceParametersTest, constructor) {
+  // Realistic data.
+  auto data =
+      std::make_shared<std::unordered_map<std::string, std::vector<float>>>();
+  // some code duplication from the tests above ...
+  (*data)["Fx"].push_back(0.145133);
+  (*data)["Fx"].push_back(-0.011368);
+  (*data)["Fx"].push_back(0.027848);
+  (*data)["Fx"].push_back(0.145133);
+  (*data)["Fx"].push_back(-0.011408);
+  (*data)["Fx"].push_back(0.066983);
+  (*data)["Fx"].push_back(-0.050422);
+  (*data)["Fx"].push_back(-0.128612);
+  (*data)["Fx"].push_back(-0.011207);
+  (*data)["Fx"].push_back(0.145173);
+  (*data)["Fy"].push_back(0.145133);
+  (*data)["Fy"].push_back(-0.011368);
+  (*data)["Fy"].push_back(0.027848);
+  (*data)["Fy"].push_back(0.145133);
+  (*data)["Fy"].push_back(-0.011408);
+  (*data)["Fy"].push_back(0.066983);
+  (*data)["Fy"].push_back(-0.050422);
+  (*data)["Fy"].push_back(-0.128612);
+  (*data)["Fy"].push_back(-0.011207);
+  (*data)["Fy"].push_back(0.145173);
+
+  BalanceParameters balanceParameters(data);
+  // ASSERT_TRUE(balanceParameters.isValid());
+  ASSERT_FLOAT_EQ(balanceParameters.getMeanForceX(), 0.0317253);
+  ASSERT_FLOAT_EQ(balanceParameters.getMeanForceY(), 0.0317253);
 }
 
 // ____________________________________________________________________________

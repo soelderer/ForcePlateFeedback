@@ -58,9 +58,11 @@ public:
   // ...
 
   // Getters.
+  bool isValid() const { return isValid_; }
   float getTimeframe() const { return timeframe_; }
   float getStartTime() const { return startTime_; }
   float getStopTime() const { return stopTime_; }
+  int getNumRows() const { return numRows_; }
   float getMeanForceX() const { return meanForceX_; }
   float getMeanForceY() const { return meanForceY_; }
   // ...
@@ -87,6 +89,7 @@ private:
 
   FRIEND_TEST(BalanceParametersTest, calculateMeanForceX);
   FRIEND_TEST(BalanceParametersTest, calculateMeanForceY);
+  FRIEND_TEST(BalanceParametersTest, validateData);
 };
 
 // A class for the data management. It is the "model" in the
