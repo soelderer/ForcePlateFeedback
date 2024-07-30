@@ -37,7 +37,6 @@ class OutputWindow : public QWidget {
 
 public:
   OutputWindow();
-  ~OutputWindow() {}
   // No custom destructors needed, as the Qt object tree takes care of
   // widget destruction, https://stackoverflow.com/a/37056051
 
@@ -87,9 +86,6 @@ class ConfigWindow : public QWidget {
 
 public:
   ConfigWindow();
-  ~ConfigWindow() {}
-  // No custom destructors needed, as the Qt object tree takes care of
-  // widget destruction, https://stackoverflow.com/a/37056051
 
   // Qt objects are not supposed to be copied, so no copy constructor and
   // assignment operator implemented. See https://stackoverflow.com/a/19092698

@@ -37,7 +37,8 @@ public:
 
   // Default constructor.
   BalanceParameters();
-  ~BalanceParameters();
+
+  // Default destructor is enough because we only hold shared_ptr
 
   // Re-calculate parameters with given data.
   void update(
@@ -96,9 +97,10 @@ class DataModel : public QObject {
 
 public:
   DataModel();
-  ~DataModel();
   // Qt objects are not supposed to be copied, so no copy constructor and
   // assignment operator implemented. See https://stackoverflow.com/a/19092698
+
+  // Default destructor is enough because we only hold STL and custom classes
 
 private:
   // State variables.

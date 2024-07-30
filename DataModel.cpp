@@ -25,11 +25,6 @@ BalanceParameters::BalanceParameters(
 }
 
 // ____________________________________________________________________________
-BalanceParameters::~BalanceParameters() {
-  // delete data
-}
-
-// ____________________________________________________________________________
 void BalanceParameters::update(
     const std::shared_ptr<std::unordered_map<std::string, std::vector<float>>>
         &data) {
@@ -133,9 +128,6 @@ DataModel::DataModel() : running_(false) {
 }
 
 // ____________________________________________________________________________
-DataModel::~DataModel() {}
-
-// ____________________________________________________________________________
 void DataModel::onStartProcessing(std::string fileName, float timeframe) {
   configTimeframe_ = timeframe;
 
@@ -218,6 +210,4 @@ void DataModel::onResetModel() {
   firstRow_ = 0;
   lastRow_ = 0;
   numRows_ = 0;
-
-  // balanceParameters_ = new BalanceParameters();
 }
