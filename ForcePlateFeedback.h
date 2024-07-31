@@ -120,6 +120,28 @@ signals:
   void startButtonPressed(const QString &fileName, const QString &timeframe);
 };
 
+class MessageHandler {
+public:
+  virtual ~MessageHandler() {}
+  virtual void showDialog(const QString &message) = 0;
+};
+
+class DefaultMessageHandler : public MessageHandler {
+public:
+  void showDialog(const QString &message) override {
+    QMessageBox messageDialog;
+    messageDialog.setText(message);
+    messageDialog.exec();
+  }
+};
+
+class MockMessageHandler : public MessageHandler {
+public:
+  void showDialog(const QString &message) override {
+    std::cout << "MessageBox with: " << message.toStdString() << std::endl;
+  }
+};
+
 // A class for the coordination of GUI and core logic. Sets up the
 // Qt application, connects signals etc.
 class ForcePlateFeedback : public QWidget {
@@ -141,6 +163,10 @@ private:
 
   // The data model responsible for continuously calculating the parameters.
   DataModel *dataModel_;
+
+  // Class for handling message dialogs. This allows a mock handler for unit
+  // tests via dependency injection.
+  MessageHandler *messageHandler_;
 
   // Configuration options.
   std::string fileName_;

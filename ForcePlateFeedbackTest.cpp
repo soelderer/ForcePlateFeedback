@@ -984,7 +984,11 @@ TEST(ForcePlateFeedbackTest, validateConfigOptions) {
 
 // ____________________________________________________________________________
 TEST(ForcePlateFeedbackTest, combinedTest) {
-  // This is a combined test of the constructor, startLiveView, stopLiveView
+  // This is a combined test of the constructor, startLiveView, stopLiveView,
+  // onStartButtonPressed
+  // void onReachedEOF();
+  // void onInvalidFile();
+  // void onCorruptFile();
   // The creation of QtWidgets necessitates a QApplication. Initializing a new
   // QApplication in a separate tests gave me memory leaks and I could not find
   // out how to solve it.
@@ -996,6 +1000,8 @@ TEST(ForcePlateFeedbackTest, combinedTest) {
 
   // TEST: constructor
   ForcePlateFeedback forcePlateFeedback;
+  delete forcePlateFeedback.messageHandler_;
+  forcePlateFeedback.messageHandler_ = new MockMessageHandler();
 
   ASSERT_FALSE(forcePlateFeedback.running_);
   ASSERT_STREQ(forcePlateFeedback.fileName_.c_str(), "");
@@ -1035,7 +1041,6 @@ TEST(ForcePlateFeedbackTest, combinedTest) {
   ASSERT_FLOAT_EQ(forcePlateFeedback.timeframe_, 0.05);
 
   // Case with invalid config options.
-  // Sorry for the message box!
 
   forcePlateFeedback.startLiveView("", "50");
   ASSERT_FALSE(forcePlateFeedback.running_);
@@ -1045,6 +1050,69 @@ TEST(ForcePlateFeedbackTest, combinedTest) {
 
   // Errors in conversion of timeframe to float should not happen because
   // the QLineEdit has a validator.
+
+  // TEST: onStartButtonPressed. This is basically a wrapper for startLiveView
+  // and stopLiveView depending on the current state (toggling).
+
+  // Regular case.
+
+  forcePlateFeedback.onStartButtonPressed("example_data/KistlerCSV_stub.txt",
+                                          "50");
+  ASSERT_TRUE(forcePlateFeedback.running_);
+  ASSERT_STREQ(forcePlateFeedback.fileName_.c_str(),
+               "example_data/KistlerCSV_stub.txt");
+  ASSERT_FLOAT_EQ(forcePlateFeedback.timeframe_, 0.05);
+
+  // Another click should stop it.
+
+  forcePlateFeedback.onStartButtonPressed("example_data/KistlerCSV_stub.txt",
+                                          "50");
+  ASSERT_FALSE(forcePlateFeedback.running_);
+  ASSERT_STREQ(forcePlateFeedback.fileName_.c_str(),
+               "example_data/KistlerCSV_stub.txt");
+  ASSERT_FLOAT_EQ(forcePlateFeedback.timeframe_, 0.05);
+
+  // Another click should start it again.
+  forcePlateFeedback.onStartButtonPressed("example_data/KistlerCSV_large.txt",
+                                          "13");
+  ASSERT_TRUE(forcePlateFeedback.running_);
+  ASSERT_STREQ(forcePlateFeedback.fileName_.c_str(),
+               "example_data/KistlerCSV_large.txt");
+  ASSERT_FLOAT_EQ(forcePlateFeedback.timeframe_, 0.013);
+
+  // TEST: onReachedEOF
+  // This is basically a wrapper for stopLiveView.
+
+  // Regular case.
+  forcePlateFeedback.onReachedEOF();
+  ASSERT_FALSE(forcePlateFeedback.running_);
+  ASSERT_STREQ(forcePlateFeedback.fileName_.c_str(),
+               "example_data/KistlerCSV_large.txt");
+  ASSERT_FLOAT_EQ(forcePlateFeedback.timeframe_, 0.013);
+
+  // Double stop.
+  forcePlateFeedback.onReachedEOF();
+  ASSERT_FALSE(forcePlateFeedback.running_);
+  ASSERT_STREQ(forcePlateFeedback.fileName_.c_str(),
+               "example_data/KistlerCSV_large.txt");
+  ASSERT_FLOAT_EQ(forcePlateFeedback.timeframe_, 0.013);
+
+  // TEST: onInvalidFile
+  // This is basically a wrapper for stopLiveView.
+
+  forcePlateFeedback.startLiveView("example_data/KistlerCSV_stub.txt", "50");
+  ASSERT_TRUE(forcePlateFeedback.running_);
+  ASSERT_STREQ(forcePlateFeedback.fileName_.c_str(),
+               "example_data/KistlerCSV_stub.txt");
+  ASSERT_FLOAT_EQ(forcePlateFeedback.timeframe_, 0.05);
+
+  forcePlateFeedback.onInvalidFile();
+  ASSERT_FALSE(forcePlateFeedback.running_);
+  ASSERT_STREQ(forcePlateFeedback.fileName_.c_str(),
+               "example_data/KistlerCSV_stub.txt");
+  ASSERT_FLOAT_EQ(forcePlateFeedback.timeframe_, 0.05);
+
+  // TEST: onCorruptFile
 
   delete[] argv;
 }

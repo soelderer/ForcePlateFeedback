@@ -196,6 +196,7 @@ ForcePlateFeedback::ForcePlateFeedback() {
   configWindow_ = new ConfigWindow();
   outputWindow_ = new OutputWindow();
   dataModel_ = new DataModel();
+  messageHandler_ = new DefaultMessageHandler();
 
   // Signal for start button pressed.
   QObject::connect(configWindow_, &ConfigWindow::startButtonPressed, this,
@@ -248,6 +249,7 @@ ForcePlateFeedback::~ForcePlateFeedback() {
   delete outputWindow_;
   delete configWindow_;
   delete dataModel_;
+  delete messageHandler_;
 }
 
 // ____________________________________________________________________________
@@ -260,10 +262,8 @@ void ForcePlateFeedback::startLiveView(const QString &fileName,
     float timeframeFloat = timeframe.toFloat();
 
     if (!validateConfigOptions(fileName.toStdString(), timeframeFloat)) {
-      QMessageBox invalidOptionsDialog;
-      invalidOptionsDialog.setText(
+      messageHandler_->showDialog(
           "Please select a file and enter a non-zero timeframe.");
-      invalidOptionsDialog.exec();
       return;
     }
 
@@ -321,18 +321,17 @@ void ForcePlateFeedback::onReachedEOF() {
 // ____________________________________________________________________________
 void ForcePlateFeedback::onInvalidFile() {
   stopLiveView();
-  QMessageBox invalidFileDialog;
-  invalidFileDialog.setText(
+
+  messageHandler_->showDialog(
       "File does not "
       "appear to be a valid BioWare file. Please double-check.");
-  invalidFileDialog.exec();
 }
 
 // ____________________________________________________________________________
 void ForcePlateFeedback::onCorruptFile() {
   stopLiveView();
-  QMessageBox corruptFileDialog;
-  corruptFileDialog.setText("Stumbled upon invalid data while processing the "
-                            "file. Seems like the data is corrupt. Aborting.");
-  corruptFileDialog.exec();
+
+  messageHandler_->showDialog(
+      "Stumbled upon invalid data while processing the "
+      "file. Seems like the data is corrupt. Aborting.");
 }
