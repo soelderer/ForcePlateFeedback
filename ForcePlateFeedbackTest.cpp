@@ -869,6 +869,20 @@ TEST(DataModelTest, process) {
   ASSERT_FLOAT_EQ(dataModel.balanceParameters_.getMeanForceY(), -0.0048777051);
 
   // Corrupt data file.
+  dataModel.onResetModel();
+
+  dataModel.onStartProcessing("example_data/KistlerCSV_corrupt.txt", 0.05);
+  ASSERT_TRUE(dataModel.running_);
+  ASSERT_FLOAT_EQ(dataModel.configTimeframe_, 0.05);
+  ASSERT_EQ(dataModel.timeframe_, 0);
+  ASSERT_EQ(dataModel.startTime_, 0);
+  ASSERT_EQ(dataModel.stopTime_, 0);
+  ASSERT_EQ(dataModel.firstRow_, 0);
+  ASSERT_EQ(dataModel.lastRow_, 0);
+  ASSERT_EQ(dataModel.numRows_, 0);
+
+  // should not crash, but emit a corruptFileSignal.
+  // can't really test the signals ...
 }
 
 // ____________________________________________________________________________
@@ -876,10 +890,10 @@ TEST(DataModelTest, onResetModel) {
   DataModel dataModel;
 
   // Regular case.
-  dataModel.onStartProcessing("example_data/KistlerCSV_stub.txt", 50.0);
+  dataModel.onStartProcessing("example_data/KistlerCSV_stub.txt", 0.05);
 
   ASSERT_STREQ(dataModel.fileName_.c_str(), "example_data/KistlerCSV_stub.txt");
-  ASSERT_FLOAT_EQ(dataModel.configTimeframe_, 50.0);
+  ASSERT_FLOAT_EQ(dataModel.configTimeframe_, 0.05);
   ASSERT_EQ(dataModel.timeframe_, 0);
   ASSERT_EQ(dataModel.startTime_, 0);
   ASSERT_EQ(dataModel.stopTime_, 0);
@@ -889,7 +903,7 @@ TEST(DataModelTest, onResetModel) {
   ASSERT_TRUE(dataModel.running_);
 
   dataModel.onStopProcessing();
-  ASSERT_FLOAT_EQ(dataModel.configTimeframe_, 50.0);
+  ASSERT_FLOAT_EQ(dataModel.configTimeframe_, 0.05);
   ASSERT_EQ(dataModel.timeframe_, 0);
   ASSERT_EQ(dataModel.startTime_, 0);
   ASSERT_EQ(dataModel.stopTime_, 0);
@@ -900,7 +914,7 @@ TEST(DataModelTest, onResetModel) {
 
   dataModel.onResetModel();
 
-  ASSERT_FLOAT_EQ(dataModel.configTimeframe_, 50.0);
+  ASSERT_FLOAT_EQ(dataModel.configTimeframe_, 0.05);
   ASSERT_EQ(dataModel.timeframe_, 0);
   ASSERT_EQ(dataModel.startTime_, 0);
   ASSERT_EQ(dataModel.stopTime_, 0);
@@ -909,7 +923,44 @@ TEST(DataModelTest, onResetModel) {
   ASSERT_EQ(dataModel.numRows_, 0);
   ASSERT_FALSE(dataModel.running_);
 
-  // TODO: test with process();
+  // After a single process() shot.
+  dataModel.onStartProcessing("example_data/KistlerCSV_large.txt", 0.05);
+  ASSERT_TRUE(dataModel.running_);
+  ASSERT_FLOAT_EQ(dataModel.configTimeframe_, 0.05);
+  ASSERT_EQ(dataModel.timeframe_, 0);
+  ASSERT_EQ(dataModel.startTime_, 0);
+  ASSERT_EQ(dataModel.stopTime_, 0);
+  ASSERT_EQ(dataModel.firstRow_, 0);
+  ASSERT_EQ(dataModel.lastRow_, 0);
+  ASSERT_EQ(dataModel.numRows_, 0);
+
+  dataModel.process();
+
+  ASSERT_FLOAT_EQ(dataModel.timeframe_, 0.05);
+  ASSERT_FLOAT_EQ(dataModel.startTime_, 0);
+  ASSERT_FLOAT_EQ(dataModel.stopTime_, 0.05);
+  ASSERT_EQ(dataModel.firstRow_, PLAYBACK_DELAY_MS);
+  ASSERT_EQ(dataModel.lastRow_, PLAYBACK_DELAY_MS + 51);
+  ASSERT_EQ(dataModel.numRows_, 51);
+  ASSERT_FLOAT_EQ(dataModel.balanceParameters_.getStartTime(), 0);
+  ASSERT_FLOAT_EQ(dataModel.balanceParameters_.getStopTime(), 0.05);
+  ASSERT_EQ(dataModel.balanceParameters_.getNumRows(), 51);
+  ASSERT_FLOAT_EQ(dataModel.balanceParameters_.getTimeframe(), 0.05);
+  ASSERT_FLOAT_EQ(dataModel.balanceParameters_.getMeanForceX(),
+                  0.035464098039215686);
+  ASSERT_FLOAT_EQ(dataModel.balanceParameters_.getMeanForceY(),
+                  -0.02020123529411765);
+
+  dataModel.onResetModel();
+
+  ASSERT_FLOAT_EQ(dataModel.configTimeframe_, 0.05);
+  ASSERT_EQ(dataModel.timeframe_, 0);
+  ASSERT_EQ(dataModel.startTime_, 0);
+  ASSERT_EQ(dataModel.stopTime_, 0);
+  ASSERT_EQ(dataModel.firstRow_, 0);
+  ASSERT_EQ(dataModel.lastRow_, 0);
+  ASSERT_EQ(dataModel.numRows_, 0);
+  ASSERT_FALSE(dataModel.running_);
 }
 
 // ____________________________________________________________________________
@@ -929,6 +980,73 @@ TEST(ForcePlateFeedbackTest, validateConfigOptions) {
 
   // All good.
   ASSERT_TRUE(ForcePlateFeedback::validateConfigOptions("/tmp/file.txt", 50.0));
+}
+
+// ____________________________________________________________________________
+TEST(ForcePlateFeedbackTest, combinedTest) {
+  // This is a combined test of the constructor, startLiveView, stopLiveView
+  // The creation of QtWidgets necessitates a QApplication. Initializing a new
+  // QApplication in a separate tests gave me memory leaks and I could not find
+  // out how to solve it.
+
+  int argc = 0;
+  char **argv = new char *[1];
+
+  QApplication app(argc, argv);
+
+  // TEST: constructor
+  ForcePlateFeedback forcePlateFeedback;
+
+  ASSERT_FALSE(forcePlateFeedback.running_);
+  ASSERT_STREQ(forcePlateFeedback.fileName_.c_str(), "");
+  ASSERT_FLOAT_EQ(forcePlateFeedback.timeframe_, 0);
+  ASSERT_FALSE(forcePlateFeedback.dataModel_->isRunning());
+  ASSERT_TRUE(forcePlateFeedback.configWindow_->isEnabled());
+  ASSERT_TRUE(forcePlateFeedback.outputWindow_->isEnabled());
+
+  // TEST: startLiveView and stopLiveView
+
+  // Regular case.
+  forcePlateFeedback.startLiveView("example_data/KistlerCSV_stub.txt", "50");
+  ASSERT_TRUE(forcePlateFeedback.running_);
+  ASSERT_STREQ(forcePlateFeedback.fileName_.c_str(),
+               "example_data/KistlerCSV_stub.txt");
+  ASSERT_FLOAT_EQ(forcePlateFeedback.timeframe_, 0.05);
+
+  // Already running.
+  forcePlateFeedback.startLiveView("example_data/KistlerCSV_stub.txt", "50");
+  ASSERT_TRUE(forcePlateFeedback.running_);
+  ASSERT_STREQ(forcePlateFeedback.fileName_.c_str(),
+               "example_data/KistlerCSV_stub.txt");
+  ASSERT_FLOAT_EQ(forcePlateFeedback.timeframe_, 0.05);
+
+  // Stopping.
+  forcePlateFeedback.stopLiveView();
+  ASSERT_FALSE(forcePlateFeedback.running_);
+  ASSERT_STREQ(forcePlateFeedback.fileName_.c_str(),
+               "example_data/KistlerCSV_stub.txt");
+  ASSERT_FLOAT_EQ(forcePlateFeedback.timeframe_, 0.05);
+
+  // Stopping twice.
+  forcePlateFeedback.stopLiveView();
+  ASSERT_FALSE(forcePlateFeedback.running_);
+  ASSERT_STREQ(forcePlateFeedback.fileName_.c_str(),
+               "example_data/KistlerCSV_stub.txt");
+  ASSERT_FLOAT_EQ(forcePlateFeedback.timeframe_, 0.05);
+
+  // Case with invalid config options.
+  // Sorry for the message box!
+
+  forcePlateFeedback.startLiveView("", "50");
+  ASSERT_FALSE(forcePlateFeedback.running_);
+  ASSERT_STREQ(forcePlateFeedback.fileName_.c_str(),
+               "example_data/KistlerCSV_stub.txt");
+  ASSERT_FLOAT_EQ(forcePlateFeedback.timeframe_, 0.05);
+
+  // Errors in conversion of timeframe to float should not happen because
+  // the QLineEdit has a validator.
+
+  delete[] argv;
 }
 
 // ____________________________________________________________________________

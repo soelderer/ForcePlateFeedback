@@ -153,7 +153,9 @@ private:
   // options are valid.
   static bool validateConfigOptions(const std::string &fileName,
                                     const float timeframe);
+
   FRIEND_TEST(ForcePlateFeedbackTest, validateConfigOptions);
+  FRIEND_TEST(ForcePlateFeedbackTest, combinedTest);
 
   // Start and stop the live view. Takes care of emitting the right signals,
   // changing state variables etc.

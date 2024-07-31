@@ -100,6 +100,8 @@ public:
 
   // Default destructor is enough because we only hold STL and custom classes.
 
+  bool isRunning() { return running_; }
+
   FRIEND_TEST(DataModelTest, defaultConstructor);
   FRIEND_TEST(DataModelTest, onStartProcessing);
   FRIEND_TEST(DataModelTest, onStopProcessing);

@@ -191,6 +191,8 @@ void OutputWindow::onDataUpdated(const BalanceParameters *balanceParameters) {
 // ____________________________________________________________________________
 ForcePlateFeedback::ForcePlateFeedback() {
   running_ = false;
+  fileName_ = "";
+  timeframe_ = 0;
   configWindow_ = new ConfigWindow();
   outputWindow_ = new OutputWindow();
   dataModel_ = new DataModel();
