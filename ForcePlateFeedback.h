@@ -120,6 +120,9 @@ signals:
   void startButtonPressed(const QString &fileName, const QString &timeframe);
 };
 
+// Class which abstracts QMessageBox such that a mock message dialog can be
+// used in unit tests. Default handler is a simple QMessageBox, the mock handler
+// just prints to stdout.
 class MessageHandler {
 public:
   virtual ~MessageHandler() {}

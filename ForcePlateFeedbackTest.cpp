@@ -985,10 +985,7 @@ TEST(ForcePlateFeedbackTest, validateConfigOptions) {
 // ____________________________________________________________________________
 TEST(ForcePlateFeedbackTest, combinedTest) {
   // This is a combined test of the constructor, startLiveView, stopLiveView,
-  // onStartButtonPressed
-  // void onReachedEOF();
-  // void onInvalidFile();
-  // void onCorruptFile();
+  // onStartButtonPressed, onReachedEOF, onInvalidFile, onCorruptFile.
   // The creation of QtWidgets necessitates a QApplication. Initializing a new
   // QApplication in a separate tests gave me memory leaks and I could not find
   // out how to solve it.
@@ -999,7 +996,9 @@ TEST(ForcePlateFeedbackTest, combinedTest) {
   QApplication app(argc, argv);
 
   // TEST: constructor
+
   ForcePlateFeedback forcePlateFeedback;
+  // Dependency injection: mock message handler
   delete forcePlateFeedback.messageHandler_;
   forcePlateFeedback.messageHandler_ = new MockMessageHandler();
 
@@ -1112,7 +1111,36 @@ TEST(ForcePlateFeedbackTest, combinedTest) {
                "example_data/KistlerCSV_stub.txt");
   ASSERT_FLOAT_EQ(forcePlateFeedback.timeframe_, 0.05);
 
+  // Double stop.
+
+  forcePlateFeedback.onInvalidFile();
+  ASSERT_FALSE(forcePlateFeedback.running_);
+  ASSERT_STREQ(forcePlateFeedback.fileName_.c_str(),
+               "example_data/KistlerCSV_stub.txt");
+  ASSERT_FLOAT_EQ(forcePlateFeedback.timeframe_, 0.05);
+
   // TEST: onCorruptFile
+  // This is basically a wrapper for stopLiveView.
+
+  forcePlateFeedback.startLiveView("example_data/KistlerCSV_stub.txt", "50");
+  ASSERT_TRUE(forcePlateFeedback.running_);
+  ASSERT_STREQ(forcePlateFeedback.fileName_.c_str(),
+               "example_data/KistlerCSV_stub.txt");
+  ASSERT_FLOAT_EQ(forcePlateFeedback.timeframe_, 0.05);
+
+  forcePlateFeedback.onCorruptFile();
+  ASSERT_FALSE(forcePlateFeedback.running_);
+  ASSERT_STREQ(forcePlateFeedback.fileName_.c_str(),
+               "example_data/KistlerCSV_stub.txt");
+  ASSERT_FLOAT_EQ(forcePlateFeedback.timeframe_, 0.05);
+
+  // Double stop.
+
+  forcePlateFeedback.onCorruptFile();
+  ASSERT_FALSE(forcePlateFeedback.running_);
+  ASSERT_STREQ(forcePlateFeedback.fileName_.c_str(),
+               "example_data/KistlerCSV_stub.txt");
+  ASSERT_FLOAT_EQ(forcePlateFeedback.timeframe_, 0.05);
 
   delete[] argv;
 }
