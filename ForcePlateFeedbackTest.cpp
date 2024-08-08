@@ -3,6 +3,12 @@
 
 #include "./ForcePlateFeedback.h"
 #include <gtest/gtest.h>
+// ____________________________________________________________________________
+// I couldn't test the elicitation of the signals with gtest. Therefore, unit
+// tests for the signals are missing. However, the logic is in the slots, which
+// I was able to unit test. With the QTest framework, you could test elicitation
+// of the signals via a signal counter.
+// ____________________________________________________________________________
 
 // ____________________________________________________________________________
 TEST(KistlerCSVFileTest, validateFile) {
