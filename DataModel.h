@@ -71,7 +71,7 @@ private:
   // If the data (and thus the whole object) is valid.
   bool isValid_;
 
-  // Time information in seconds.
+  // Time information for the currently held data in seconds.
   float timeframe_;
   float startTime_;
   float stopTime_;
@@ -88,8 +88,7 @@ private:
 
 // A class for the data management. It is the "model" in the
 // model-view-controller framework. It continously reads data
-// and recalculates the balance parameters. It uses Qt signals
-// and slots to communicate with other objects.
+// and recalculates the balance parameters.
 class DataModel : public QObject {
   Q_OBJECT
 
@@ -142,15 +141,20 @@ private:
 
 private slots:
   // Re-read the latest data and calculate the BalanceParameters.
+  // This slot is called regularly by the timer.
   // Emits a signal when parameters a ready for display.
   void process();
 
 public slots:
+  // These slots take care of handling signals related to starting and stopping
+  // the live view. Starts/stops the timer, sets up the KistlerFile etc.
   void onStartProcessing(const std::string &fileName, const float timeframe);
   void onStopProcessing();
   void onResetModel();
 
 signals:
+  // These signals are elicited when new parameters are calculated, when the end
+  // of file is reached, when a corrupt file is detected while processing etc.
   void dataUpdated(const BalanceParameters *balanceParameters);
   void reachedEOF();
   void invalidFileSignal();

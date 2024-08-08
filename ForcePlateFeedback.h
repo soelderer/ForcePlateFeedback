@@ -68,7 +68,9 @@ private:
   QChartView *yChartView_;
 
 public slots:
-  // Communication with ForcePlateFeedback class.
+  // Communication with ForcePlateFeedback class. These functions are connected
+  // to signals. Qt takes care of calling these slots when the signals are
+  // elicited.
   void onStartLiveView(const std::string &fileName, const float timeframe);
   void onStopLiveView();
   void onDataUpdated(const BalanceParameters *balanceParameters);
@@ -82,8 +84,6 @@ public slots:
 // There, she can make settings like setting the file to read from, and a
 // timeframe. There will be buttons to control the flow of the program, like
 // "Start", "Pause" etc.
-// I'm not yet familiar enough with Qt to see if this makes sense, or if it's
-// better to just directly use the respective Qt classes.
 class ConfigWindow : public QWidget {
   Q_OBJECT
 
@@ -107,16 +107,20 @@ private:
   QFileDialog *fileDialog_;
 
 private slots:
-  // Event handlers.
+  // Event handlers for start button and file selection dialog.
   void handleStartButton();
   void handleFileButton();
 
 public slots:
-  // Communication with ForcePlateFeedback class.
+  // Communication with ForcePlateFeedback class. These functions are connected
+  // to signals. Qt takes care of calling these slots when the signals are
+  // elicited.
   void onStartLiveView(const std::string &fileName, const float timeframe);
   void onStopLiveView();
 
 signals:
+  // Communication with ForcePlateFeedback class. This signal is emitted when
+  // the start button is pressed. The actual logic is in ForcePlateFeedback.
   void startButtonPressed(const QString &fileName, const QString &timeframe);
 };
 
@@ -146,7 +150,7 @@ public:
 };
 
 // A class for the coordination of GUI and core logic. Sets up the
-// Qt application, connects signals etc.
+// Qt application, connects signals and slots etc.
 class ForcePlateFeedback : public QWidget {
   Q_OBJECT
 
@@ -192,6 +196,9 @@ private:
   void stopLiveView();
 
 signals:
+  // These signals are emitted to start and stop the live view. The
+  // corresponding slots in the OutputWindow, DataModel etc. take care of the
+  // neccessary changes to GUI and data model.
   void startLiveViewSignal(const std::string &fileName, const float timeframe);
   void stopLiveViewSignal();
   void resetModel();
@@ -201,6 +208,7 @@ private slots:
   void onStartButtonPressed(const QString &fileName, const QString &timeframe);
 
 public slots:
+  // These slots are called by the DataModel on end of file, invalid file, etc.
   void onReachedEOF();
   void onInvalidFile();
   void onCorruptFile();
